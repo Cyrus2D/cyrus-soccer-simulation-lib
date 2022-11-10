@@ -102,7 +102,9 @@ void
 AudioMemory::setPass( const int sender,
                       const int receiver,
                       const Vector2D & pos,
-                      const GameTime & current )
+                      const GameTime & current,
+                      const bool & is_pre_pass,
+                      const bool & is_cross)
 {
     dlog.addText( Logger::WORLD,
                   __FILE__": set heard pass: sender=%d "
@@ -115,7 +117,7 @@ AudioMemory::setPass( const int sender,
         M_pass.clear();
     }
 
-    M_pass.emplace_back( sender, receiver, pos );
+    M_pass.emplace_back( sender, receiver, pos, is_pre_pass, is_cross );
     M_pass_time = current;
 
     M_time = current;
@@ -204,19 +206,21 @@ void
 AudioMemory::setPlayer( const int sender,
                         const int unum,
                         const Vector2D & pos,
-                        const GameTime & current )
+                        const GameTime & current,
+                        const int & pos_count)
 {
     dlog.addText( Logger::WORLD,
                   __FILE__": set heard player. sender=%d "
-                  "unum=%d pos=(%.2f, %.2f) no body",
+                  "unum=%d pos=(%.2f, %.2f) no body "
+                  "pos_count=%d + %d",
                   sender,
-                  unum, pos.x, pos.y );
+                  unum, pos.x, pos.y, pos_count, (sender == unum ? 0 : 1));
     if ( M_player_time != current )
     {
         M_player.clear();
     }
 
-    M_player.emplace_back( sender, unum, pos );
+    M_player.emplace_back( sender, unum, pos, -360.0, -1.0, pos_count + (sender == unum ? 0 : 1));
     M_player_time = current;
 
     M_time = current;
@@ -238,19 +242,21 @@ AudioMemory::setPlayer( const int sender,
                         const Vector2D & pos,
                         const double & body,
                         const double & stamina,
-                        const GameTime & current )
+                        const GameTime & current,
+                        const int & pos_count)
 {
     dlog.addText( Logger::WORLD,
                   __FILE__": set heard player. sender=%d "
-                  "unum=%d pos=(%.2f, %.2f) body=%.1f",
+                  "unum=%d pos=(%.2f, %.2f) body=%.1f "
+                  "pos_count=%d + %d",
                   sender,
-                  unum, pos.x, pos.y, body );
+                  unum, pos.x, pos.y, body, pos_count, (sender == unum ? 0 : 1) );
     if ( M_player_time != current )
     {
         M_player.clear();
     }
 
-    M_player.emplace_back( sender, unum, pos, body, stamina );
+    M_player.emplace_back( sender, unum, pos, body, stamina, pos_count + (sender == unum ? 0 : 1));
     M_player_time = current;
 
     M_time = current;
