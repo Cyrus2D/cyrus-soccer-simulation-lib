@@ -37,6 +37,59 @@
 #include <memory>
 #include <string>
 
+//a
+//b BallMessageParser
+//c StaminaCapacityMessageParser
+//d DefenseLineMessageParser
+//e GoalieAndPlayerMessageParser
+//f PrePassMessageParser
+//g GoalieMessageParser
+//h PassRequestMessageParser
+//i InterceptMessageParser
+//j PreCrossMessageParser
+//k OnePlayerMessageParser1
+//l OnePlayerMessageParser2
+//m ThreePlayerMessageParser122
+//n ThreePlayerMessageParser222
+//o OffsideLineMessageParser
+//p PassMessageParser
+//q
+//r RecoveryMessageParser
+//s StaminaMessageParser
+//t
+//u
+//v
+//w WaitRequestMessageParser
+//x
+//y
+//z
+//A
+//B BallPlayerMessageParser
+//C
+//D DribbleMessageParser
+//E
+//F SetplayMessageParser
+//G BallGoalieMessageParser
+//H ThreePlayerMessageParser001
+//I ThreePlayerMessageParser002
+//J ThreePlayerMessageParser011
+//K ThreePlayerMessageParser012
+//L ThreePlayerMessageParser022
+//M ThreePlayerMessageParser111
+//N ThreePlayerMessageParser112
+//O OpponentMessageParser
+//P OnePlayerMessageParser
+//Q TwoPlayerMessageParser
+//R ThreePlayerMessageParser
+//S SelfMessageParser
+//T TeammateMessageParser
+//U TwoPlayerMessageParser01
+//V TwoPlayerMessageParser02
+//W TwoPlayerMessageParser11
+//X TwoPlayerMessageParser12
+//Y TwoPlayerMessageParser22
+//Z
+
 namespace rcsc {
 
 class AudioMemory;
@@ -223,6 +276,128 @@ public:
 
 };
 
+
+/*-------------------------------------------------------------------*/
+/*!
+  \class PrePassMessageParser
+  \brief pass info message parser
+  format:
+  "p<unum_pos:4>"
+  the length of message == 5
+ */
+class PrePassMessageParser
+    : public SayMessageParser {
+private:
+
+    //! pointer to the audio memory
+    std::shared_ptr< AudioMemory > M_memory;
+
+public:
+
+    /*!
+      \brief construct with audio memory
+      \param memory pointer to the memory
+     */
+    explicit
+    PrePassMessageParser( std::shared_ptr< AudioMemory > memory );
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    static
+    char sheader() { return 'f'; }
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    char header() const { return sheader(); }
+
+    /*!
+      \brief get the length of this message.
+      \return the length of encoded message
+    */
+    static
+    int slength() { return 5; }
+
+    /*!
+      \brief virtual method which analyzes audio messages.
+      \param sender sender's uniform number
+      \param dir sender's direction
+      \param msg raw audio message
+      \param current current game time
+      \retval bytes read if success
+      \retval 0 message ID is not match. other parser should be tried.
+      \retval -1 failed to parse
+    */
+    int parse( const int sender,
+               const double & dir,
+               const char * msg,
+               const GameTime & current );
+
+};
+
+/*-------------------------------------------------------------------*/
+/*!
+  \class PreCrossMessageParser
+  \brief pass info message parser
+  format:
+  "p<unum_pos:4>"
+  the length of message == 5
+ */
+class PreCrossMessageParser
+    : public SayMessageParser {
+private:
+
+    //! pointer to the audio memory
+    std::shared_ptr< AudioMemory > M_memory;
+
+public:
+
+    /*!
+      \brief construct with audio memory
+      \param memory pointer to the memory
+     */
+    explicit
+    PreCrossMessageParser( std::shared_ptr< AudioMemory > memory );
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    static
+    char sheader() { return 'j'; }
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    char header() const { return sheader(); }
+
+    /*!
+      \brief get the length of this message.
+      \return the length of encoded message
+    */
+    static
+    int slength() { return 5; }
+
+    /*!
+      \brief virtual method which analyzes audio messages.
+      \param sender sender's uniform number
+      \param dir sender's direction
+      \param msg raw audio message
+      \param current current game time
+      \retval bytes read if success
+      \retval 0 message ID is not match. other parser should be tried.
+      \retval -1 failed to parse
+    */
+    int parse( const int sender,
+               const double & dir,
+               const char * msg,
+               const GameTime & current );
+
+};
 /*-------------------------------------------------------------------*/
 /*!
   \class InterceptMessageParser
@@ -1093,6 +1268,111 @@ public:
 
 };
 
+class OnePlayerMessageParser1
+    : public SayMessageParser {
+private:
+
+    //! pointer to the audio memory
+    std::shared_ptr< AudioMemory > M_memory;
+
+public:
+
+    /*!
+      \brief construct with audio memory
+      \param memory pointer to the memory
+     */
+    explicit
+    OnePlayerMessageParser1( std::shared_ptr< AudioMemory > memory );
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    static
+    char sheader() { return 'k'; }
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    char header() const { return sheader(); }
+
+    /*!
+      \brief get the length of this message.
+      \return the length of encoded message
+    */
+    static
+    int slength() { return 4; }
+
+    /*!
+      \brief virtual method which analyzes audio messages.
+      \param sender sender's uniform number
+      \param dir sender's direction
+      \param msg raw audio message
+      \param current current game time
+      \retval bytes read if success
+      \retval 0 message ID is not match. other parser should be tried.
+      \retval -1 failed to parse
+    */
+    int parse( const int sender,
+               const double & dir,
+               const char * msg,
+               const GameTime & current );
+
+};
+
+class OnePlayerMessageParser2
+    : public SayMessageParser {
+private:
+
+    //! pointer to the audio memory
+    std::shared_ptr< AudioMemory > M_memory;
+
+public:
+
+    /*!
+      \brief construct with audio memory
+      \param memory pointer to the memory
+     */
+    explicit
+    OnePlayerMessageParser2( std::shared_ptr< AudioMemory > memory );
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    static
+    char sheader() { return 'l'; }
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    char header() const { return sheader(); }
+
+    /*!
+      \brief get the length of this message.
+      \return the length of encoded message
+    */
+    static
+    int slength() { return 4; }
+
+    /*!
+      \brief virtual method which analyzes audio messages.
+      \param sender sender's uniform number
+      \param dir sender's direction
+      \param msg raw audio message
+      \param current current game time
+      \retval bytes read if success
+      \retval 0 message ID is not match. other parser should be tried.
+      \retval -1 failed to parse
+    */
+    int parse( const int sender,
+               const double & dir,
+               const char * msg,
+               const GameTime & current );
+
+};
 /*-------------------------------------------------------------------*/
 /*!
   \class TwoPlayerMessageParser
@@ -1155,6 +1435,270 @@ public:
 
 };
 
+class TwoPlayerMessageParser01
+    : public SayMessageParser {
+private:
+
+    //! pointer to the audio memory
+    std::shared_ptr< AudioMemory > M_memory;
+
+public:
+
+    /*!
+      \brief construct with audio memory
+      \param memory pointer to the memory
+     */
+    explicit
+    TwoPlayerMessageParser01( std::shared_ptr< AudioMemory > memory );
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    static
+    char sheader() { return 'U'; }
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    char header() const { return sheader(); }
+
+    /*!
+      \brief get the length of this message.
+      \return the length of encoded message
+    */
+    static
+    int slength() { return 7; }
+
+    /*!
+      \brief virtual method which analyzes audio messages.
+      \param sender sender's uniform number
+      \param dir sender's direction
+      \param msg raw audio message
+      \param current current game time
+      \retval bytes read if success
+      \retval 0 message ID is not match. other parser should be tried.
+      \retval -1 failed to parse
+    */
+    int parse( const int sender,
+               const double & dir,
+               const char * msg,
+               const GameTime & current );
+
+};
+
+class TwoPlayerMessageParser02
+    : public SayMessageParser {
+private:
+
+    //! pointer to the audio memory
+    std::shared_ptr< AudioMemory > M_memory;
+
+public:
+
+    /*!
+      \brief construct with audio memory
+      \param memory pointer to the memory
+     */
+    explicit
+    TwoPlayerMessageParser02( std::shared_ptr< AudioMemory > memory );
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    static
+    char sheader() { return 'V'; }
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    char header() const { return sheader(); }
+
+    /*!
+      \brief get the length of this message.
+      \return the length of encoded message
+    */
+    static
+    int slength() { return 7; }
+
+    /*!
+      \brief virtual method which analyzes audio messages.
+      \param sender sender's uniform number
+      \param dir sender's direction
+      \param msg raw audio message
+      \param current current game time
+      \retval bytes read if success
+      \retval 0 message ID is not match. other parser should be tried.
+      \retval -1 failed to parse
+    */
+    int parse( const int sender,
+               const double & dir,
+               const char * msg,
+               const GameTime & current );
+
+};
+
+class TwoPlayerMessageParser11
+    : public SayMessageParser {
+private:
+
+    //! pointer to the audio memory
+    std::shared_ptr< AudioMemory > M_memory;
+
+public:
+
+    /*!
+      \brief construct with audio memory
+      \param memory pointer to the memory
+     */
+    explicit
+    TwoPlayerMessageParser11( std::shared_ptr< AudioMemory > memory );
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    static
+    char sheader() { return 'W'; }
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    char header() const { return sheader(); }
+
+    /*!
+      \brief get the length of this message.
+      \return the length of encoded message
+    */
+    static
+    int slength() { return 7; }
+
+    /*!
+      \brief virtual method which analyzes audio messages.
+      \param sender sender's uniform number
+      \param dir sender's direction
+      \param msg raw audio message
+      \param current current game time
+      \retval bytes read if success
+      \retval 0 message ID is not match. other parser should be tried.
+      \retval -1 failed to parse
+    */
+    int parse( const int sender,
+               const double & dir,
+               const char * msg,
+               const GameTime & current );
+
+};
+
+class TwoPlayerMessageParser12
+    : public SayMessageParser {
+private:
+
+    //! pointer to the audio memory
+    std::shared_ptr< AudioMemory > M_memory;
+
+public:
+
+    /*!
+      \brief construct with audio memory
+      \param memory pointer to the memory
+     */
+    explicit
+    TwoPlayerMessageParser12( std::shared_ptr< AudioMemory > memory );
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    static
+    char sheader() { return 'X'; }
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    char header() const { return sheader(); }
+
+    /*!
+      \brief get the length of this message.
+      \return the length of encoded message
+    */
+    static
+    int slength() { return 7; }
+
+    /*!
+      \brief virtual method which analyzes audio messages.
+      \param sender sender's uniform number
+      \param dir sender's direction
+      \param msg raw audio message
+      \param current current game time
+      \retval bytes read if success
+      \retval 0 message ID is not match. other parser should be tried.
+      \retval -1 failed to parse
+    */
+    int parse( const int sender,
+               const double & dir,
+               const char * msg,
+               const GameTime & current );
+
+};
+
+class TwoPlayerMessageParser22
+    : public SayMessageParser {
+private:
+
+    //! pointer to the audio memory
+    std::shared_ptr< AudioMemory > M_memory;
+
+public:
+
+    /*!
+      \brief construct with audio memory
+      \param memory pointer to the memory
+     */
+    explicit
+    TwoPlayerMessageParser22( std::shared_ptr< AudioMemory > memory );
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    static
+    char sheader() { return 'Y'; }
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    char header() const { return sheader(); }
+
+    /*!
+      \brief get the length of this message.
+      \return the length of encoded message
+    */
+    static
+    int slength() { return 7; }
+
+    /*!
+      \brief virtual method which analyzes audio messages.
+      \param sender sender's uniform number
+      \param dir sender's direction
+      \param msg raw audio message
+      \param current current game time
+      \retval bytes read if success
+      \retval 0 message ID is not match. other parser should be tried.
+      \retval -1 failed to parse
+    */
+    int parse( const int sender,
+               const double & dir,
+               const char * msg,
+               const GameTime & current );
+
+};
 /*-------------------------------------------------------------------*/
 /*!
   \class ThreePlayerMessageParser
@@ -1216,6 +1760,484 @@ public:
                const GameTime & current );
 
 };
+
+class ThreePlayerMessageParser001
+    : public SayMessageParser {
+private:
+
+    //! pointer to the audio memory
+    std::shared_ptr< AudioMemory > M_memory;
+
+public:
+
+    /*!
+      \brief construct with audio memory
+      \param memory pointer to the memory
+     */
+    explicit
+    ThreePlayerMessageParser001( std::shared_ptr< AudioMemory > memory );
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    static
+    char sheader() { return 'H'; }
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    char header() const { return sheader(); }
+
+    /*!
+      \brief get the length of this message.
+      \return the length of encoded message
+    */
+    static
+    int slength() { return 10; }
+
+    /*!
+      \brief virtual method which analyzes audio messages.
+      \param sender sender's uniform number
+      \param dir sender's direction
+      \param msg raw audio message
+      \param current current game time
+      \retval bytes read if success
+      \retval 0 message ID is not match. other parser should be tried.
+      \retval -1 failed to parse
+    */
+    int parse( const int sender,
+               const double & dir,
+               const char * msg,
+               const GameTime & current );
+
+};
+
+class ThreePlayerMessageParser002
+    : public SayMessageParser {
+private:
+
+    //! pointer to the audio memory
+    std::shared_ptr< AudioMemory > M_memory;
+
+public:
+
+    /*!
+      \brief construct with audio memory
+      \param memory pointer to the memory
+     */
+    explicit
+    ThreePlayerMessageParser002( std::shared_ptr< AudioMemory > memory );
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    static
+    char sheader() { return 'I'; }
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    char header() const { return sheader(); }
+
+    /*!
+      \brief get the length of this message.
+      \return the length of encoded message
+    */
+    static
+    int slength() { return 10; }
+
+    /*!
+      \brief virtual method which analyzes audio messages.
+      \param sender sender's uniform number
+      \param dir sender's direction
+      \param msg raw audio message
+      \param current current game time
+      \retval bytes read if success
+      \retval 0 message ID is not match. other parser should be tried.
+      \retval -1 failed to parse
+    */
+    int parse( const int sender,
+               const double & dir,
+               const char * msg,
+               const GameTime & current );
+
+};
+
+class ThreePlayerMessageParser011
+    : public SayMessageParser {
+private:
+
+    //! pointer to the audio memory
+    std::shared_ptr< AudioMemory > M_memory;
+
+public:
+
+    /*!
+      \brief construct with audio memory
+      \param memory pointer to the memory
+     */
+    explicit
+    ThreePlayerMessageParser011( std::shared_ptr< AudioMemory > memory );
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    static
+    char sheader() { return 'J'; }
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    char header() const { return sheader(); }
+
+    /*!
+      \brief get the length of this message.
+      \return the length of encoded message
+    */
+    static
+    int slength() { return 10; }
+
+    /*!
+      \brief virtual method which analyzes audio messages.
+      \param sender sender's uniform number
+      \param dir sender's direction
+      \param msg raw audio message
+      \param current current game time
+      \retval bytes read if success
+      \retval 0 message ID is not match. other parser should be tried.
+      \retval -1 failed to parse
+    */
+    int parse( const int sender,
+               const double & dir,
+               const char * msg,
+               const GameTime & current );
+
+};
+
+class ThreePlayerMessageParser012
+    : public SayMessageParser {
+private:
+
+    //! pointer to the audio memory
+    std::shared_ptr< AudioMemory > M_memory;
+
+public:
+
+    /*!
+      \brief construct with audio memory
+      \param memory pointer to the memory
+     */
+    explicit
+    ThreePlayerMessageParser012( std::shared_ptr< AudioMemory > memory );
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    static
+    char sheader() { return 'K'; }
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    char header() const { return sheader(); }
+
+    /*!
+      \brief get the length of this message.
+      \return the length of encoded message
+    */
+    static
+    int slength() { return 10; }
+
+    /*!
+      \brief virtual method which analyzes audio messages.
+      \param sender sender's uniform number
+      \param dir sender's direction
+      \param msg raw audio message
+      \param current current game time
+      \retval bytes read if success
+      \retval 0 message ID is not match. other parser should be tried.
+      \retval -1 failed to parse
+    */
+    int parse( const int sender,
+               const double & dir,
+               const char * msg,
+               const GameTime & current );
+
+};
+
+class ThreePlayerMessageParser022
+    : public SayMessageParser {
+private:
+
+    //! pointer to the audio memory
+    std::shared_ptr< AudioMemory > M_memory;
+
+public:
+
+    /*!
+      \brief construct with audio memory
+      \param memory pointer to the memory
+     */
+    explicit
+    ThreePlayerMessageParser022( std::shared_ptr< AudioMemory > memory );
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    static
+    char sheader() { return 'L'; }
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    char header() const { return sheader(); }
+
+    /*!
+      \brief get the length of this message.
+      \return the length of encoded message
+    */
+    static
+    int slength() { return 10; }
+
+    /*!
+      \brief virtual method which analyzes audio messages.
+      \param sender sender's uniform number
+      \param dir sender's direction
+      \param msg raw audio message
+      \param current current game time
+      \retval bytes read if success
+      \retval 0 message ID is not match. other parser should be tried.
+      \retval -1 failed to parse
+    */
+    int parse( const int sender,
+               const double & dir,
+               const char * msg,
+               const GameTime & current );
+
+};
+
+class ThreePlayerMessageParser111
+    : public SayMessageParser {
+private:
+
+    //! pointer to the audio memory
+    std::shared_ptr< AudioMemory > M_memory;
+
+public:
+
+    /*!
+      \brief construct with audio memory
+      \param memory pointer to the memory
+     */
+    explicit
+    ThreePlayerMessageParser111( std::shared_ptr< AudioMemory > memory );
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    static
+    char sheader() { return 'M'; }
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    char header() const { return sheader(); }
+
+    /*!
+      \brief get the length of this message.
+      \return the length of encoded message
+    */
+    static
+    int slength() { return 10; }
+
+    /*!
+      \brief virtual method which analyzes audio messages.
+      \param sender sender's uniform number
+      \param dir sender's direction
+      \param msg raw audio message
+      \param current current game time
+      \retval bytes read if success
+      \retval 0 message ID is not match. other parser should be tried.
+      \retval -1 failed to parse
+    */
+    int parse( const int sender,
+               const double & dir,
+               const char * msg,
+               const GameTime & current );
+
+};
+
+class ThreePlayerMessageParser112
+    : public SayMessageParser {
+private:
+
+    //! pointer to the audio memory
+    std::shared_ptr< AudioMemory > M_memory;
+
+public:
+
+    /*!
+      \brief construct with audio memory
+      \param memory pointer to the memory
+     */
+    explicit
+    ThreePlayerMessageParser112( std::shared_ptr< AudioMemory > memory );
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    static
+    char sheader() { return 'N'; }
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    char header() const { return sheader(); }
+
+    /*!
+      \brief get the length of this message.
+      \return the length of encoded message
+    */
+    static
+    int slength() { return 10; }
+
+    /*!
+      \brief virtual method which analyzes audio messages.
+      \param sender sender's uniform number
+      \param dir sender's direction
+      \param msg raw audio message
+      \param current current game time
+      \retval bytes read if success
+      \retval 0 message ID is not match. other parser should be tried.
+      \retval -1 failed to parse
+    */
+    int parse( const int sender,
+               const double & dir,
+               const char * msg,
+               const GameTime & current );
+
+};
+
+class ThreePlayerMessageParser122
+    : public SayMessageParser {
+private:
+
+    //! pointer to the audio memory
+    std::shared_ptr< AudioMemory > M_memory;
+
+public:
+
+    /*!
+      \brief construct with audio memory
+      \param memory pointer to the memory
+     */
+    explicit
+    ThreePlayerMessageParser122( std::shared_ptr< AudioMemory > memory );
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    static
+    char sheader() { return 'm'; }
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    char header() const { return sheader(); }
+
+    /*!
+      \brief get the length of this message.
+      \return the length of encoded message
+    */
+    static
+    int slength() { return 10; }
+
+    /*!
+      \brief virtual method which analyzes audio messages.
+      \param sender sender's uniform number
+      \param dir sender's direction
+      \param msg raw audio message
+      \param current current game time
+      \retval bytes read if success
+      \retval 0 message ID is not match. other parser should be tried.
+      \retval -1 failed to parse
+    */
+    int parse( const int sender,
+               const double & dir,
+               const char * msg,
+               const GameTime & current );
+
+};
+
+class ThreePlayerMessageParser222
+    : public SayMessageParser {
+private:
+
+    //! pointer to the audio memory
+    std::shared_ptr< AudioMemory > M_memory;
+
+public:
+
+    /*!
+      \brief construct with audio memory
+      \param memory pointer to the memory
+     */
+    explicit
+    ThreePlayerMessageParser222( std::shared_ptr< AudioMemory > memory );
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    static
+    char sheader() { return 'n'; }
+
+    /*!
+      \brief get the header character.
+      \return header character.
+     */
+    char header() const { return sheader(); }
+
+    /*!
+      \brief get the length of this message.
+      \return the length of encoded message
+    */
+    static
+    int slength() { return 10; }
+
+    /*!
+      \brief virtual method which analyzes audio messages.
+      \param sender sender's uniform number
+      \param dir sender's direction
+      \param msg raw audio message
+      \param current current game time
+      \retval bytes read if success
+      \retval 0 message ID is not match. other parser should be tried.
+      \retval -1 failed to parse
+    */
+    int parse( const int sender,
+               const double & dir,
+               const char * msg,
+               const GameTime & current );
+
+};
+
 
 /*-------------------------------------------------------------------*/
 /*!
