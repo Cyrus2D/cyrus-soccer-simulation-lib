@@ -76,16 +76,19 @@ private:
 
     // if player's dprate & effort is not enough,
     // player never reach player_speed_max
-    double M_real_speed_max;
+//    double M_real_speed_max;
+    std::vector<double> M_real_speed_max;
 
     double M_player_speed_max2; // squared value
-    double M_real_speed_max2;   // squared value
+//    double M_real_speed_max2;   // squared value
+    std::vector<double> M_real_speed_max2;
 
     //! dash cycles to reach max speed
     int M_cycles_to_reach_max_speed;
 
     //! distance table by continuous dashes from the velocity 0.
-    std::vector< double > M_dash_distance_table;
+//    std::vector< double > M_dash_distance_table;
+    std::vector< std::vector<double> > M_dash_distance_table;
 
     // stamina cconsumption table by continuous dashes
     //std::vector< double > M_stamina_table;
@@ -374,10 +377,10 @@ public:
       \brief get the reachable speed max
       \return reachable speed max
      */
-    double realSpeedMax() const
-      {
-          return M_real_speed_max;
-      }
+//    double realSpeedMax() const
+//      {
+//          return M_real_speed_max;
+//      }
 
     /*!
       \brief get the squared player speed max
@@ -388,23 +391,26 @@ public:
           return M_player_speed_max2;
       }
 
+
     /*!
       \brief get the squared real speed max
       \return squared real speed max
      */
-    double realSpeedMax2() const
-      {
-          return M_real_speed_max2;
-      }
+//    double realSpeedMax2() const
+//      {
+//          return M_real_speed_max2;
+//      }
+
+
 
     /*!
       \brief get dash reachable distance table
       \return const reference to the distance table container
      */
-    const std::vector< double > & dashDistanceTable() const
-      {
-          return M_dash_distance_table;
-      }
+//    const std::vector< double > & dashDistanceTable() const
+//      {
+//          return M_dash_distance_table;
+//      }
 
     ////////////////////////////////////////////////
     /*!
@@ -459,7 +465,9 @@ public:
       \param dash_dist distance to reach
       \return estimated cycles to reach
     */
-    int cyclesToReachDistance( const double & dash_dist ) const;
+//    int cyclesToReachDistance( const double & dash_dist ) const;
+    int cyclesToReachDistance( const double & dash_dist, double dash_dir=-360.0 ) const;
+    double reachDistance( const int & cycle, double dash_dir=-360.0 ) const;
     ////////////////////////////////////////////////
     /*!
       \brief check if this type player can over player_speed_max
