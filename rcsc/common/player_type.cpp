@@ -1016,6 +1016,32 @@ PlayerType::cyclesToReachMaxSpeed( const double & dash_power ) const
 //
 //    return cycle;
 //}
+int
+PlayerType::cyclesToReachDistance( const double & dash_dist, double dash_dir) const
+{
+    if ( dash_dist <= 0.001 )
+    {
+        return 0;
+    }
+    AngleDeg dash_angle = (dash_dir == -360.0 ? AngleDeg(0) : AngleDeg(dash_dir));
+    double dash_dir_deg = dash_angle.abs();
+    dash_dir_deg /= 10.0;
+    int dash_dir_step = static_cast<int>(std::round(dash_dir_deg));
+    auto it = std::lower_bound( M_dash_distance_table.at(dash_dir_step).begin(),
+                                M_dash_distance_table.at(dash_dir_step).end(),
+                                dash_dist - 0.001 );
+
+    if ( it != M_dash_distance_table.at(dash_dir_step).end() )
+    {
+        return ( static_cast< int >
+                 ( std::distance( M_dash_distance_table.at(dash_dir_step).begin(), it ) )
+                 + 1 ); // is it necessary?
+    }
+
+    double rest_dist = dash_dist - M_dash_distance_table.at(dash_dir_step).back();
+    int cycle = (int)M_dash_distance_table.at(dash_dir_step).size();
+
+    cycle += static_cast< int >( std::ceil( rest_dist / realSpeedMax(dash_dir) ) );
 
 /*-------------------------------------------------------------------*/
 /*!
