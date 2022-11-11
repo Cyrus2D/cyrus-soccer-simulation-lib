@@ -275,6 +275,17 @@ public:
                        const Vector2D & heard_pos,
                        const double & heard_body );
 
+    void updateByHearCyrus( const SideID heard_side,
+                            const int heard_unum,
+                            const bool is_goalie,
+                            const Vector2D & heard_pos,
+                            const double & heard_body,
+                            const double & heard_stamina,
+                            const bool is_our_side,
+                            const int pos_count,
+                            const int sender,
+                            const double dist_to_sender,
+                            const bool update_pos_if_pc_is_more);
     /*!
       \brief update status related to other objects
       \param self self position

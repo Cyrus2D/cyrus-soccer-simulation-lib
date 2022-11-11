@@ -451,6 +451,82 @@ PlayerObject::updateByHear( const SideID heard_side,
     }
 }
 
+void
+PlayerObject::updateByHearCyrus( const SideID heard_side,
+                                 const int heard_unum,
+                                 const bool is_goalie,
+                                 const Vector2D & heard_pos,
+                                 const double & heard_body,
+                                 const double & heard_stamina,
+                                 const bool is_our_side,
+                                 const int pos_count,
+                                 const int sender,
+                                 const double dist_to_sender,
+                                 const bool update_pos_if_pc_is_more)
+{
+    M_heard_pos = heard_pos;
+    M_heard_pos_count = pos_count;
+
+    M_ghost_count = 0;
+
+    if ( heard_side != NEUTRAL )
+    {
+        M_side = heard_side;
+    }
+
+    if ( heard_unum != Unum_Unknown
+         && unumCount() > 0 )
+    {
+        M_unum = heard_unum;
+        M_unum_count = 0;
+    }
+
+    if ( is_goalie )
+    {
+        M_goalie = true;
+    }
+
+    if ( pos_count < M_pos_count)
+    {
+        M_pos_count = pos_count;
+        M_pos = heard_pos;
+    }
+    else if(sender == heard_unum && is_our_side)
+    {
+        M_pos_count = pos_count;
+        M_pos = heard_pos;
+    }
+    else if (update_pos_if_pc_is_more)
+    {
+        double dist2self = distFromSelf();
+        if(pos_count == M_pos_count){
+            if(dist_to_sender < dist2self+20){
+                M_pos_count = pos_count;
+                M_pos = heard_pos;
+            }
+        }
+    }
+
+    if ( heard_body != -360.0 )
+    {
+        if (is_our_side && heard_unum == sender){
+            M_body = heard_body;
+            M_body_count = 0;
+        }
+        else if ( bodyCount() >= 2 && bodyCount() < pos_count)
+        {
+            M_body = heard_body;
+            M_body_count = 1;
+        }
+    }
+
+    if ( heard_stamina > 0.0 )
+    {
+        // TODO implementing heard stamina
+//        M_heard_stamina = heard_stamina;
+    }
+}
+
 /*-------------------------------------------------------------------*/
 /*!
 

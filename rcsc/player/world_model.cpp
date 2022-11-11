@@ -1694,11 +1694,22 @@ WorldModel::updateGoalieByHear()
 
     if ( goalie )
     {
-        goalie->updateByHear( theirSide(),
-                              theirGoalieUnum(),
-                              true,
-                              heard_pos,
-                              heard_body );
+//        goalie->updateByHear( theirSide(),
+//                              theirGoalieUnum(),
+//                              true,
+//                              heard_pos,
+//                              heard_body );
+        goalie->updateByHearCyrus(theirSide(),
+                                  theirGoalieUnum(),
+                                  true,
+                                  heard_pos,
+                                  heard_body,
+                                  -1.0,
+                                  false,
+                                  1,
+                                  0,
+                                  100,
+                                  false);
         return;
     }
 
@@ -1758,11 +1769,22 @@ WorldModel::updateGoalieByHear()
                       " heard_pos=(%.1f %.1f)",
                       heard_pos.x, heard_pos.y );
 #endif
-        goalie->updateByHear( theirSide(),
-                              theirGoalieUnum(),
-                              true,
-                              heard_pos,
-                              heard_body );
+//        goalie->updateByHear( theirSide(),
+//                              theirGoalieUnum(),
+//                              true,
+//                              heard_pos,
+//                              heard_body );
+        goalie->updateByHearCyrus(theirSide(),
+                                theirGoalieUnum(),
+                                true,
+                                heard_pos,
+                                heard_body,
+                                -1.0,
+                                false,
+                                1,
+                                0,
+                                100,
+                                false);
     }
     else
     {
@@ -1775,11 +1797,22 @@ WorldModel::updateGoalieByHear()
 #endif
         M_opponents.push_back( PlayerObject() );
         goalie = &(M_opponents.back());
-        goalie->updateByHear( theirSide(),
-                              theirGoalieUnum(),
-                              true,
-                              heard_pos,
-                              heard_body );
+//        goalie->updateByHear( theirSide(),
+//                              theirGoalieUnum(),
+//                              true,
+//                              heard_pos,
+//                              heard_body );
+        goalie->updateByHearCyrus(theirSide(),
+                          theirGoalieUnum(),
+                          true,
+                          heard_pos,
+                          heard_body,
+                          -1.0,
+                          false,
+                          1,
+                          0,
+                          100,
+                          false);
     }
 }
 
@@ -1787,6 +1820,44 @@ WorldModel::updateGoalieByHear()
 /*!
 
  */
+void drawUpdatePlayerByHear(const AudioMemory::Player & heard_player, PlayerObject * player, double min_dist, bool is_our_side)
+{
+    dlog.addText( Logger::WORLD,
+                  __FILE__" (updatePlayerByHear) exist candidate."
+                          " heard_pos(%.1f %.1f) body=%.1f stamina=%.1f,  memory pos(%.1f %.1f) count %d  dist=%.2f",
+                  heard_player.pos_.x,
+                  heard_player.pos_.y,
+                  heard_player.body_,
+                  heard_player.stamina_,
+                  player->pos().x, player->pos().y,
+                  player->posCount(),
+                  min_dist );
+    if (is_our_side){
+        auto pos = heard_player.pos_;
+        if (heard_player.body_ > -360) {
+            dlog.addSector(Logger::SENSOR, pos, 0, 1.0,
+                           heard_player.body_ - 90, 180, 60, 67, 247, false);
+        }else{
+            dlog.addCircle(Logger::SENSOR, pos, 1.0, 60, 67, 247, false);
+        }
+        dlog.addMessage(Logger::SENSOR, pos.x + 0.0, pos.y - 0.8,
+                        (std::to_string(heard_player.unum_) + "," +
+                        std::to_string(heard_player.pos_count_)).c_str(), 60, 67,247);
+    }
+    else{
+        auto pos = heard_player.pos_;
+        if (heard_player.body_ > -360) {
+            dlog.addSector(Logger::SENSOR, pos, 0, 1.0,
+                           heard_player.body_ - 90, 180, 255, 145, 0, false);
+        }else{
+            dlog.addCircle(Logger::SENSOR, pos, 1.0, 255, 145, 0, false);
+        }
+        dlog.addMessage(Logger::SENSOR, pos.x + 0.0, pos.y - 0.8,
+                        (std::to_string(heard_player.unum_ - 11) + "," +
+                        std::to_string(heard_player.pos_count_)).c_str(), 255, 145, 0);
+    }
+}
+
 void
 WorldModel::updatePlayerByHear()
 {
@@ -1913,12 +1984,30 @@ WorldModel::updatePlayerByHear()
                           target_player->posCount(),
                           min_dist );
 #endif
-            target_player->updateByHear( side,
-                                         unum,
-                                         false,
-                                         heard_player.pos_,
-                                         heard_player.body_ );
-
+            double dist_sender_to_target_player = 1000;
+            if(ourPlayer(heard_player.sender_) != nullptr
+                    && ourPlayer(heard_player.sender_)->pos().isValid()){
+                dist_sender_to_target_player = ourPlayer(heard_player.sender_)->pos().dist(heard_player.pos_);
+            }
+//            target_player->updateByHear( side,
+//                                         unum,
+//                                         false,
+//                                         heard_player.pos_,
+//                                         heard_player.body_ );
+            target_player->updateByHearCyrus(side,
+                                             unum,
+                                             false,
+                                             heard_player.pos_,
+                                             heard_player.body_,
+                                             heard_player.stamina_,
+                                             ourSide() == side,
+                                             heard_player.pos_count_,
+                                             heard_player.sender_,
+                                             dist_sender_to_target_player,
+                                             true);
+            #ifdef DEBUG_PRINT_PLAYER_UPDATE
+            drawUpdatePlayerByHear(heard_player, target_player, min_dist, side == ourSide());
+            #endif
             if ( unknown != M_unknown_players.end() )
             {
 #ifdef DEBUG_PRINT_PLAYER_UPDATE
@@ -1952,11 +2041,25 @@ WorldModel::updatePlayerByHear()
                 target_player = &( M_opponents.back() );
             }
 
-            target_player->updateByHear( side,
-                                         unum,
-                                         false,
-                                         heard_player.pos_,
-                                         heard_player.body_ );
+//            target_player->updateByHear( side,
+//                                         unum,
+//                                         false,
+//                                         heard_player.pos_,
+//                                         heard_player.body_ );
+            target_player->updateByHearCyrus(side,
+                                             unum,
+                                             false,
+                                             heard_player.pos_,
+                                             heard_player.body_,
+                                             heard_player.stamina_,
+                                             ourSide() == side,
+                                             heard_player.pos_count_,
+                                             heard_player.sender_,
+                                             100,
+                                             false);
+            #ifdef DEBUG_PRINT_PLAYER_UPDATE
+            drawUpdatePlayerByHear(heard_player, target_player, min_dist, side == ourSide());
+            #endif
         }
 
         if ( target_player )
