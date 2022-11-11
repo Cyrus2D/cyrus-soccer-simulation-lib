@@ -382,6 +382,15 @@ public:
 //          return M_real_speed_max;
 //      }
 
+    double realSpeedMax(double dash_dir=-360.0) const
+      {
+          AngleDeg dash_angle = (dash_dir == -360.0 ? AngleDeg(0) : AngleDeg(dash_dir));
+          double dash_dir_deg = dash_angle.abs();
+          dash_dir_deg /= 10.0;
+          int dash_dir_step = static_cast<int>(std::round(dash_dir_deg));
+          return M_real_speed_max.at(dash_dir_step);
+      }
+
     /*!
       \brief get the squared player speed max
       \return squared player speed max
@@ -401,7 +410,14 @@ public:
 //          return M_real_speed_max2;
 //      }
 
-
+    double realSpeedMax2(double dash_dir=-360.0) const
+      {
+          AngleDeg dash_angle = (dash_dir == -360.0 ? AngleDeg(0) : AngleDeg(dash_dir));
+          double dash_dir_deg = dash_angle.abs();
+          dash_dir_deg /= 10.0;
+          int dash_dir_step = static_cast<int>(std::round(dash_dir_deg));
+          return M_real_speed_max2.at(dash_dir_step);
+      }
 
     /*!
       \brief get dash reachable distance table
@@ -412,6 +428,11 @@ public:
 //          return M_dash_distance_table;
 //      }
 
+    const
+    std::vector< std::vector<double> > & dashDistanceTable() const
+      {
+          return M_dash_distance_table;
+      }
     ////////////////////////////////////////////////
     /*!
       \brief calculate enable cycles to keep to dash using max power
