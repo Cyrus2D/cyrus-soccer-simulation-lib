@@ -48,6 +48,8 @@ namespace rcsc {
 /*!
 
 */
+static int static_player_unique_code = 0;
+
 AbstractPlayerObject::AbstractPlayerObject( const int id )
     : M_id( id ),
       M_side( NEUTRAL ),
@@ -77,9 +79,12 @@ AbstractPlayerObject::AbstractPlayerObject( const int id )
       M_angle_from_ball( 0.0 ),
       M_dist_from_self( 1000.0 ),
       M_angle_from_self( 0.0 ),
-      M_ball_reach_step( 1000 )
+      M_ball_reach_step( 1000 ),
+      M_player_unique_code (static_player_unique_code),
+      M_seen_stamina( -1.0 ),
+      M_seen_stamina_count( 1000 )
 {
-
+    static_player_unique_code++;
 }
 
 /*-------------------------------------------------------------------*/
@@ -116,12 +121,16 @@ AbstractPlayerObject::AbstractPlayerObject( const int id,
       M_angle_from_ball( 0.0 ),
       M_dist_from_self( 1000.0 ),
       M_angle_from_self( 0.0 ),
-      M_ball_reach_step( 1000 )
+      M_ball_reach_step( 1000 ),
+      M_player_unique_code (static_player_unique_code),
+      M_seen_stamina( -1.0 ),
+      M_seen_stamina_count( 1000 )
 {
     if ( p.unum_ != Unum_Unknown )
     {
         M_unum_count = 0;
     }
+    static_player_unique_code++;
 }
 
 /*-------------------------------------------------------------------*/
