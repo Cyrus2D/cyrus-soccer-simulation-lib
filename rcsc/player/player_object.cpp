@@ -37,6 +37,8 @@
 
 #include "fullstate_sensor.h"
 
+#include "stamina_with_pointto.h"
+
 #include <rcsc/common/logger.h>
 #include <rcsc/common/server_param.h>
 #include <rcsc/common/player_type.h>
@@ -93,6 +95,7 @@ PlayerObject::PlayerObject( const SideID side,
     {
         M_pointto_angle = p.arm_;
         M_pointto_count = 0;
+        StaminaWithPointto::setStaminaFromVisionData(M_seen_stamina, M_pointto_angle.degree());
     }
 
     M_kicking = p.kicking_;
@@ -193,6 +196,17 @@ PlayerObject::update()
     M_pointto_count = std::min( 1000, M_pointto_count + 1 );
     M_kicking = false;
     M_tackle_count = std::min( 1000, M_tackle_count + 1 );
+    M_seen_stamina_count = std::min( 1000, M_seen_stamina_count + 1 );
+    M_seen_stamina -= ServerParam::i().maxDashPower();
+    if ( playerTypePtr() )
+    {
+        M_seen_stamina += playerTypePtr()->staminaIncMax();
+    }
+    else
+    {
+        M_seen_stamina += ServerParam::i().defaultStaminaIncMax();
+    }
+    if ( M_seen_stamina < -1.0 ) M_seen_stamina = -1.0;
 }
 
 /*-------------------------------------------------------------------*/
@@ -309,6 +323,8 @@ PlayerObject::updateBySee( const SideID side,
     {
         M_pointto_angle = p.arm_;
         M_pointto_count = 0;
+        M_seen_stamina_count = 0;
+        StaminaWithPointto::setStaminaFromVisionData(M_seen_stamina, M_pointto_angle.degree());
     }
 
     M_kicking = p.isKicking();
@@ -324,6 +340,7 @@ PlayerObject::updateBySee( const SideID side,
     {
         M_tackle_count = 1000;
     }
+    M_seen_stamina_count = 0;
 }
 
 /*-------------------------------------------------------------------*/

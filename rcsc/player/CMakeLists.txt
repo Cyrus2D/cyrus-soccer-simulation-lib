@@ -26,6 +26,7 @@ add_library(rcsc_player OBJECT
   view_mode.cpp
   visual_sensor.cpp
   world_model.cpp
+  stamina_with_pointto.cpp
   )
 
 target_include_directories(rcsc_player
@@ -69,5 +70,6 @@ install(FILES
   view_mode.h
   visual_sensor.h
   world_model.h
+  stamina_with_pointto.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rcsc/player
   )
