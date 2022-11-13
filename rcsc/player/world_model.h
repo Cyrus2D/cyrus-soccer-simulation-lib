@@ -479,6 +479,7 @@ private:
       \param current current game time
     */
     void localizePlayers( const VisualSensor & see );
+    void localizePlayersCyrus( const VisualSensor & see );
 
     /*!
       \brief check player that has team info
@@ -512,6 +513,14 @@ private:
                              PlayerObject::List & new_opponents,
                              PlayerObject::List & new_unknown_players );
 
+    void checkUnknownPlayerCyrus( const Localization::PlayerT & player,
+                                  const double & seen_dist,
+                                  PlayerObject::List & old_teammates,
+                                  PlayerObject::List & old_opponent,
+                                  PlayerObject::List & old_unknown_players,
+                                  PlayerObject::List & new_teammates,
+                                  PlayerObject::List & new_opponents,
+                                  PlayerObject::List & new_unknown_players );
     /*!
       \brief set collision effect with ball
     */
