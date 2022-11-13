@@ -27,6 +27,8 @@ add_library(rcsc_player OBJECT
   visual_sensor.cpp
   world_model.cpp
   stamina_with_pointto.cpp
+  self_intercept_v13_cyrus.cpp
+  self_intercept_tackle.cpp
   )
 
 target_include_directories(rcsc_player
@@ -71,5 +73,7 @@ install(FILES
   visual_sensor.h
   world_model.h
   stamina_with_pointto.h
+  self_intercept_v13_cyrus.h
+  self_intercept_tackle.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rcsc/player
   )

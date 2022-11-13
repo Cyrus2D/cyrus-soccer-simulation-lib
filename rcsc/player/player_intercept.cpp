@@ -227,9 +227,9 @@ PlayerIntercept::predict( const PlayerObject & player,
             continue;
         }
 
-        if ( canReachAfterTurnDash( data,
-                                    ball_pos,
-                                    total_step ) )
+        if ( canReachAfterTurnDashCyrus( data,
+                                         ball_pos,
+                                         total_step ) )
         {
 #ifdef DEBUG
             dlog.addText( Logger::INTERCEPT,
@@ -306,6 +306,42 @@ PlayerIntercept::canReachAfterTurnDash( const PlayerData & data,
                               n_turn );
 }
 
+bool
+PlayerIntercept::canReachAfterTurnDashCyrus( const PlayerData & data,
+                                             const Vector2D & ball_pos,
+                                             const int total_step ) const
+{
+    /*
+      TODO
+      if ( canReachAfterOmniDash() )
+      {
+          return true;
+      }
+     */
+    Vector2D pos = data.player_.pos();
+    Vector2D vel = data.player_.vel();
+    pos+=(vel * data.player_.playerTypePtr()->playerSpeedMax() / 0.4);
+    int dash_cycle;
+    int turn_cycle;
+    int view_cycle;
+    int n_step = data.player_.cycles_to_cut_ball(M_world,
+                                                 ball_pos,
+                                                 total_step,
+                                                 false,
+                                                 dash_cycle,
+                                                 turn_cycle,
+                                                 view_cycle,
+                                                 pos,
+                                                 vel,
+                                                 data.player_.body().degree());
+
+    int bonus_step = std::max( 0, data.bonus_step_ - turn_cycle );
+    n_step -= bonus_step;
+    n_step += data.penalty_step_;
+    if( n_step <= total_step)
+        return true;
+    return false;
+}
 /*-------------------------------------------------------------------*/
 /*!
 

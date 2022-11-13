@@ -39,6 +39,8 @@
 #include "world_model.h"
 #include "player_object.h"
 #include "abstract_player_object.h"
+#include "self_intercept_v13_cyrus.h"
+#include "self_intercept_tackle.h"
 
 #include <rcsc/time/timer.h>
 #include <rcsc/common/logger.h>
@@ -384,15 +386,20 @@ InterceptTable::predictSelf()
                       "Intercept Self. already kickable. no estimation loop!" );
         M_self_reach_step = 0;
         M_self_exhaust_reach_step = 0;
+        M_self_reach_cycle_tackle = 1;
+        M_self_exhaust_reach_cycle_tackle = 1;
         return;
     }
 
     int max_step = std::min( MAX_STEP, static_cast< int >( M_ball_cache.size() ) );
 
-    // SelfInterceptV13 predictor( M_world );
-    // predictor.predict( max_step, M_self_cache );
-    SelfInterceptSimulator sim;
-    sim.simulate( M_world, max_step, M_self_cache );
+     SelfInterceptV13 predictor( M_world, M_ball_cache );
+     predictor.predict( max_step, M_self_cache );
+
+     SelfInterceptTackle predictor_tackle( M_world, M_ball_cache );
+     predictor_tackle.predict( max_step, M_self_cache_tackle );
+//    SelfInterceptSimulator sim;
+//    sim.simulate( M_world, max_step, M_self_cache );
 
     if ( M_self_cache.empty() )
     {
@@ -406,46 +413,92 @@ InterceptTable::predictSelf()
         // reach point should be the inertia final point of the ball
         return;
     }
-
-// #ifdef SELF_INTERCEPT_USE_NO_SAVE_RECEVERY
-//     std::sort( M_self_cache.begin(),
-//                M_self_cache.end(),
-//                InterceptInfo::Cmp() );
-//     M_self_cache.erase( std::unique( M_self_cache.begin(),
-//                                      M_self_cache.end(),
-//                                      InterceptInfo::Equal() ),
-//                         M_self_cache.end() );
-// #endif
-
-    int min_step = M_self_reach_step;
-    int exhaust_min_step = M_self_exhaust_reach_step;
-
-    for ( const InterceptInfo & i : M_self_cache )
+    else
     {
-        if ( i.staminaType() == InterceptInfo::NORMAL )
+        // #ifdef SELF_INTERCEPT_USE_NO_SAVE_RECEVERY
+        //     std::sort( M_self_cache.begin(),
+        //                M_self_cache.end(),
+        //                InterceptInfo::Cmp() );
+        //     M_self_cache.erase( std::unique( M_self_cache.begin(),
+        //                                      M_self_cache.end(),
+        //                                      InterceptInfo::Equal() ),
+        //                         M_self_cache.end() );
+        // #endif
+
+        int min_step = M_self_reach_step;
+        int exhaust_min_step = M_self_exhaust_reach_step;
+
+        for ( const InterceptInfo & i : M_self_cache )
         {
-            if ( i.reachStep() < min_step )
+            if ( i.staminaType() == InterceptInfo::NORMAL )
             {
-                min_step = i.reachStep();
+                if ( i.reachStep() < min_step )
+                {
+                    min_step = i.reachStep();
+                }
+            }
+            else if ( i.staminaType() == InterceptInfo::EXHAUST )
+            {
+                if ( i.reachStep() < exhaust_min_step )
+                {
+                    exhaust_min_step = i.reachStep();
+                }
             }
         }
-        else if ( i.staminaType() == InterceptInfo::EXHAUST )
-        {
-            if ( i.reachStep() < exhaust_min_step )
-            {
-                exhaust_min_step = i.reachStep();
-            }
-        }
+
+        dlog.addText( Logger::INTERCEPT,
+                      "Intercept Self. solution size = %d",
+                      M_self_cache.size() );
+
+        M_self_reach_step = min_step;
+        M_self_exhaust_reach_step = exhaust_min_step;
+
+        //M_player_map.insert( std::pair< const AbstractPlayerObject *, int >( &(M_world.self()), min_step ) );
     }
+    if ( M_self_cache_tackle.empty() )
+    {
+        std::cerr << M_world.self().unum() << ' '
+                  << M_world.time()
+                  << " Interecet Self cache tackle is empty!"
+                  << std::endl;
+        dlog.addText( Logger::INTERCEPT,
+                      "Intercept Self. Self cache tackle is empty!" );
+        // if self cache is empty,
+        // reach point should be the inertia final point of the ball
+    }else{
+        int min_cycle = M_self_reach_cycle_tackle;
+        int exhaust_min_cycle = M_self_exhaust_reach_cycle_tackle;
 
-    dlog.addText( Logger::INTERCEPT,
-                  "Intercept Self. solution size = %d",
-                  M_self_cache.size() );
+        const std::vector< InterceptInfo >::iterator end = M_self_cache_tackle.end();
+        for ( std::vector< InterceptInfo >::iterator it = M_self_cache_tackle.begin();
+              it != end;
+              ++it )
+        {
+            if ( it->staminaType() == InterceptInfo::NORMAL )
+            {
+                if ( it->reachCycle() < min_cycle )
+                {
+                    min_cycle = it->reachCycle();
+                    break;
+                }
+            }
+            else if ( it->staminaType() == InterceptInfo::EXHAUST )
+            {
+                if ( it->reachCycle() < exhaust_min_cycle )
+                {
+                    exhaust_min_cycle = it->reachCycle();
+                    break;
+                }
+            }
+        }
 
-    M_self_reach_step = min_step;
-    M_self_exhaust_reach_step = exhaust_min_step;
+        dlog.addText( Logger::INTERCEPT,
+                      "Intercept Self Tackle. solution size = %d",
+                      M_self_cache_tackle.size() );
 
-    //M_player_map.insert( std::pair< const AbstractPlayerObject *, int >( &(M_world.self()), min_step ) );
+        M_self_reach_cycle_tackle = min_cycle;
+        M_self_exhaust_reach_cycle_tackle = exhaust_min_cycle;
+    }
 }
 
 /*-------------------------------------------------------------------*/

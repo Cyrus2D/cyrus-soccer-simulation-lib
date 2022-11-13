@@ -145,6 +145,9 @@ private:
                                 const Vector2D & ball_pos,
                                 const int total_step ) const;
 
+    bool canReachAfterTurnDashCyrus( const PlayerData & data,
+                                     const Vector2D & ball_pos,
+                                     const int total_step ) const;
     /*!
       \brief predict required cycle to face to the ball position
       \param cycle we consder the status 'cycle' cycles later

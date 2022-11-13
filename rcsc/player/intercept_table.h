@@ -89,6 +89,8 @@ private:
 
     double M_value; //!< evaluation value
 
+    bool M_is_tackle;
+
 public:
 
     /*!
@@ -105,7 +107,8 @@ public:
           M_self_pos( -10000.0, 0.0 ),
           M_ball_dist( 10000000.0 ),
           M_stamina( 0.0 ),
-          M_value( 0.0 )
+          M_value( 0.0 ),
+          M_is_tackle( false )
       { }
 
     /*!
@@ -120,7 +123,8 @@ public:
                    const double dash_dir,
                    const Vector2D & self_pos,
                    const double ball_dist,
-                   const double stamina )
+                   const double stamina,
+                   const bool is_tackle = false)
         : M_stamina_type( stamina_type ),
           M_action_type( action_type ),
           M_turn_step( turn_step ),
@@ -131,7 +135,8 @@ public:
           M_self_pos( self_pos ),
           M_ball_dist( ball_dist ),
           M_stamina( stamina ),
-          M_value( 0.0 )
+          M_value( 0.0 ),
+          M_is_tackle( is_tackle )
       { }
 
     /*!
@@ -232,6 +237,11 @@ public:
       {
           return M_stamina;
       }
+
+    double isTackle() const
+      {
+          return M_is_tackle;
+      }
 };
 
 /*-------------------------------------------------------------------*/
@@ -254,8 +264,10 @@ private:
 
     //! predicted min reach step for self without stamina exhaust
     int M_self_reach_step;
+    int M_self_reach_cycle_tackle;
     //! predicted min reach step for self with stamina exhaust
     int M_self_exhaust_reach_step;
+    int M_self_exhaust_reach_cycle_tackle;
     //! predicted min reach step for teammate
     int M_teammate_reach_step;
     //! predicted reach step for second fastest teammate
@@ -278,6 +290,7 @@ private:
 
     //! interception info cache for smart interception
     std::vector< InterceptInfo > M_self_cache;
+    std::vector< InterceptInfo > M_self_cache_tackle;
 
     //! all players' intercept step container. key: pointer, value: step value
     std::map< const AbstractPlayerObject *, int > M_player_map;
@@ -328,14 +341,20 @@ public:
     */
     int selfReachCycle() const { return M_self_reach_step; }
     int selfReachStep() const { return M_self_reach_step; }
-
+    int selfReachCycleTackle() const
+      {
+          return M_self_reach_cycle_tackle;
+      }
     /*!
       \brief get minimal ball gettable step for self with stamina exhaust
       \return step value to get the ball
     */
     int selfExhaustReachCycle() const { return M_self_exhaust_reach_step; }
     int selfExhaustReachStep() const { return M_self_exhaust_reach_step; }
-
+    int selfExhaustReachCycleTackle() const
+      {
+          return M_self_exhaust_reach_cycle_tackle;
+      }
     /*!
       \brief get minimal ball gettable step for teammate
       \return step value to get the ball
@@ -410,6 +429,10 @@ public:
           return M_self_cache;
       }
 
+    const std::vector< InterceptInfo > & selfCacheTackle() const
+      {
+          return M_self_cache_tackle;
+      }
     /*!
       \brief get all players' intercept step container.
       \return map container. key: pointer, value: step value
