@@ -82,6 +82,9 @@ InterceptTable::clear()
 
     M_self_reach_step = 1000;
     M_self_exhaust_reach_step = 1000;
+    M_self_reach_cycle_tackle = 1000;
+    M_self_exhaust_reach_step = 1000;
+
     M_teammate_reach_step = 1000;
     M_second_teammate_reach_step = 1000;
     M_goalie_reach_step = 1000;
@@ -94,7 +97,7 @@ InterceptTable::clear()
     M_second_opponent = nullptr;
 
     M_self_cache.clear();
-
+    M_self_cache_tackle.clear();
     M_player_map.clear();
 }
 
