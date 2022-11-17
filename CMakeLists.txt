@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(librcsc VERSION 2020.08)
+project(libcyrus VERSION 2020.08)
 
 set(LIBRCSC_SOVERSION 16) # protocol version
 set(LIBRCSC_BUILDVERSION ${LIBRCSC_SOVERSION}.0.0)
@@ -19,8 +19,13 @@ endif()
 set(CMAKE_CXX_FLAGS "-W -Wall")
 
 # install destination
+set(TEAM_DIR "")
+set(LIB_PATH "${TEAM_DIR}")
+if(LIB_PATH STREQUAL "")
+  set(LIB_PATH "$ENV{HOME}/local")
+endif()
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(CMAKE_INSTALL_PREFIX "$ENV{HOME}/local" CACHE PATH "Install destination path" FORCE)
+  set(CMAKE_INSTALL_PREFIX "${LIB_PATH}" CACHE PATH "Install destination path" FORCE)
 endif()
 
 include(GNUInstallDirs)
