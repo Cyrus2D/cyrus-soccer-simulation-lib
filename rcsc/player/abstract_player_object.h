@@ -66,8 +66,6 @@ protected:
     int M_unum_count; //!< accuracy count
     bool M_goalie; //!< goalie flag
 
-    int M_player_unique_code;
-
     const PlayerType * M_player_type; //!< player type reference
     Card M_card; //!< card information
 
@@ -100,6 +98,8 @@ protected:
     AngleDeg M_angle_from_ball; //!< angle from ball
     double M_dist_from_self; //!< distance from self
     AngleDeg M_angle_from_self; //!< angle from self
+
+    int M_player_unique_code;
 
     double M_seen_stamina; //!< seen stamina
     int M_seen_stamina_count; //!< seen stamina count
@@ -732,7 +732,7 @@ public:
             }
             return opp_reach_cycle;
         }
-        int cycles_to_cut_ball_direct_kick(const WorldModel & wm,
+        int cycles_to_cut_ball_direct_kick(const WorldModel & /*wm*/,
                                            const Vector2D & ball_pos,
                                            const int cycle,
                                            int & dash_cycle,
@@ -934,7 +934,7 @@ public:
 
             return n_turn;
         }
-        int cycles_to_cut_ball_direct_tackle(const WorldModel & wm,
+        int cycles_to_cut_ball_direct_tackle(const WorldModel & /*wm*/,
                                              const Vector2D & ball_pos,
                                              const int cycle,
                                              int & dash_cycle,
@@ -1050,13 +1050,13 @@ public:
         int predict_player_turn_cycle_direct_tackle(const rcsc::PlayerType * ptype,
                                                     const rcsc::AngleDeg & player_body,
                                                     const double & player_speed,
-                                                    const double & target_dist,
+                                                    const double & /*target_dist*/,
                                                     const rcsc::AngleDeg & target_angle,
                                                     const double & dist_thr,
                                                     const rcsc::Vector2D player_pos,
                                                     const rcsc::Vector2D player_vel,
                                                     const rcsc::Vector2D target_pos,
-                                                    bool & use_back_dash,
+                                                    bool & /*use_back_dash*/,
                                                     double & next_body_angle) const {
             const ServerParam & SP = ServerParam::i();
 
@@ -1091,7 +1091,7 @@ public:
             return n_turn;
 
         }
-        int cycles_to_cut_ball_omni_kick(const WorldModel & wm,
+        int cycles_to_cut_ball_omni_kick(const WorldModel & /*wm*/,
                                          const Vector2D & ball_pos,
                                          const int cycle,
                                          int & dash_cycle,
@@ -1100,7 +1100,7 @@ public:
                                          Vector2D predict_pos,
                                          Vector2D predict_vel,
                                          AngleDeg predict_body,
-                                         double safe_dist_thr) const{
+                                         double /*safe_dist_thr*/) const{
             static const Rect2D penalty_area(
                     Vector2D(ServerParam::i().theirPenaltyAreaLineX(),
                              -ServerParam::i().penaltyAreaHalfWidth()),

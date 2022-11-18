@@ -145,9 +145,7 @@ SelfInterceptV13::predict( const int max_cycle,
         return;
     }
 
-    const bool save_recovery = ( M_world.self().staminaModel().capacity() == 0.0
-                                 ? false
-                                 : true );
+    const bool save_recovery = M_world.self().staminaModel().capacity() != 0.0;
 
     predictOneStep( self_cache );
     predictShortStep( max_cycle, save_recovery, self_cache );
@@ -171,11 +169,10 @@ SelfInterceptV13::predict( const int max_cycle,
                   "(SelfIntercept) solution size = %d",
                   self_cache.size() );
     const std::vector< InterceptInfo >::iterator end = self_cache.end();
-    for ( std::vector< InterceptInfo >::iterator it = self_cache.begin();
+    for ( auto it = self_cache.begin();
           it != end;
           ++it )
     {
-        Vector2D bpos = M_world.ball().inertiaPoint( it->reachCycle() );
         dlog.addText( Logger::INTERCEPT,
                       "(SelfIntercept) type=%d cycle=%d (turn=%d dash=%d)"
                       " power=%.2f angle=%.1f"
@@ -532,9 +529,8 @@ SelfInterceptV13::predictOneDash( std::vector< InterceptInfo > & self_cache ) co
                   best->ballDist(), best->stamina(), best_kick_rate );
 #endif
 
-    double best_dist = 1000;
     const std::vector< InterceptInfo >::iterator end = tmp_cache.end();
-    std::vector< InterceptInfo >::iterator it = tmp_cache.begin();
+    auto it = tmp_cache.begin();
     ++it;
 
     for ( ; it != end; ++it )
@@ -1283,13 +1279,9 @@ SelfInterceptV13::predictTurnCycleShort( const int cycle,
                                 AngleDeg::asin_deg( dist_thr / target_dist ) );
     }
 
-    bool turn_to_right = true;
-    if ( (( target_angle - (body_angle + 1) ).abs()) > (( target_angle - (body_angle -1) ).abs()))
-        turn_to_right = false;
-    Line2D body_line = Line2D(self.pos(),body_angle);
     #ifdef DEBUG_PRINT_SHORT_STEP
-        dlog.addText(Logger::INTERCEPT, "### Turn body angle %.1f target angle %.1f dif %.1f margin %.1f to right %d",
-                     body_angle.degree(), target_angle.degree(), angle_diff, turn_margin, turn_to_right);
+        dlog.addText(Logger::INTERCEPT, "### Turn body angle %.1f target angle %.1f dif %.1f margin %.1f",
+                     body_angle.degree(), target_angle.degree(), angle_diff, turn_margin);
     #endif
     if ( angle_diff > turn_margin )
     {
@@ -2256,7 +2248,7 @@ SelfInterceptV13::predictTurnCycle( const int cycle,
                                     const Vector2D & ball_pos,
                                     const double & control_area,
                                     AngleDeg * dash_angle,
-                                    bool * back_dash ) const
+                                    bool * /*back_dash*/ ) const
 {
     const PlayerType & ptype = M_world.self().playerType();
 
@@ -2270,7 +2262,7 @@ SelfInterceptV13::predictTurnCycle( const int cycle,
     const AngleDeg target_angle = target_rel.th();
 
     double angle_diff = ( target_angle - (*dash_angle) ).degree();
-    const bool diff_is_positive = ( angle_diff > 0.0 ? true : false );
+    const bool diff_is_positive = angle_diff > 0.0;
     angle_diff = std::fabs( angle_diff );
     // atan version
     const double target_dist = target_rel.r();
@@ -2641,8 +2633,6 @@ SelfInterceptV13::canReachAfterDash( const int n_turn,
                           std::fabs( tmp_pos.y - ball_rel.y ) );
 #endif
             *result_recovery = stamina_model.recovery();
-
-            Vector2D inertia_pos = ptype.inertiaPoint( tmp_pos, tmp_vel, n_dash - ( i + 1 ) );
 
             Vector2D my_final_pos = M_world.self().pos() + tmp_pos.rotate( dash_angle );
             if ( my_inertia.dist2( my_final_pos ) > 0.01 )

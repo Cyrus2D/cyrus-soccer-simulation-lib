@@ -161,11 +161,10 @@ SelfInterceptTackle::predict( const int max_cycle,
                   __FILE__"(SelfIntercept) solution size = %d",
                   self_cache.size() );
     const std::vector< InterceptInfo >::iterator end = self_cache.end();
-    for ( std::vector< InterceptInfo >::iterator it = self_cache.begin();
+    for ( auto it = self_cache.begin();
           it != end;
           ++it )
     {
-        Vector2D bpos = M_world.ball().inertiaPoint( it->reachCycle() );
         dlog.addText( Logger::INTERCEPT,
                       __FILE__"(SelfIntercept) type=%d cycle=%d (turn=%d dash=%d)"
                       " power=%.2f angle=%.1f"
@@ -266,7 +265,6 @@ SelfInterceptTackle::predictNoDash( std::vector< InterceptInfo > & self_cache ) 
     // at least, player can stop the ball
     //
 
-    double best_angle = 1000;
     double min_dist = 1000;
     for(auto& t : good_angle)
     {
@@ -274,7 +272,6 @@ SelfInterceptTackle::predictNoDash( std::vector< InterceptInfo > & self_cache ) 
         if(dist < min_dist)
         {
             min_dist = dist;
-            best_angle = t;
         }
     }
     StaminaModel stamina_model = self.staminaModel();
@@ -309,8 +306,6 @@ SelfInterceptTackle::predictOneDash( std::vector< InterceptInfo > & self_cache )
     const BallObject & ball = M_world.ball();
     const SelfObject & self = M_world.self();
     const PlayerType & ptype = self.playerType();
-
-    const Vector2D ball_next = ball.pos() + ball.vel();
 
     const double control_area = SP.tackleDist();
     const double dash_angle_step = std::max( 5.0, SP.dashAngleStep() );
@@ -405,9 +400,8 @@ SelfInterceptTackle::predictOneDash( std::vector< InterceptInfo > & self_cache )
                   best->ballDist(), best->stamina() );
 #endif
 
-    double best_dist = 1000;
     const std::vector< InterceptInfo >::iterator end = tmp_cache.end();
-    std::vector< InterceptInfo >::iterator it = tmp_cache.begin();
+    auto it = tmp_cache.begin();
     ++it;
     for ( ; it != end; ++it )
     {
@@ -444,7 +438,7 @@ SelfInterceptTackle::predictOneDash( std::vector< InterceptInfo > & self_cache )
 bool
 SelfInterceptTackle::predictOneDashAdjust( const AngleDeg & dash_angle,
                                            const Vector2D & max_forward_accel,
-                                           const Vector2D & max_back_accel,
+                                           const Vector2D & /*max_back_accel*/,
                                            const double & control_area,
                                            InterceptInfo * info ) const
 {
@@ -547,9 +541,6 @@ SelfInterceptTackle::predictShortStep( const int max_cycle,
     const BallObject & ball = M_world.ball();
     const SelfObject & self = M_world.self();
     const PlayerType & ptype = self.playerType();
-
-    const double pen_area_x = SP.ourPenaltyAreaLineX() - 0.5;
-    const double pen_area_y = SP.penaltyAreaHalfWidth() - 0.5;
 
     // calc Y distance from ball line
     const Vector2D ball_to_self = ( self.pos() - ball.pos() ).rotatedVector( - ball.vel().th() );
@@ -729,7 +720,7 @@ SelfInterceptTackle::predictTurnDashShort( const int cycle,
                                            const double & control_area,
                                            const bool save_recovery,
                                            const bool back_dash,
-                                           const double & turn_margin_control_area,
+                                           const double & /*turn_margin_control_area*/,
                                            std::vector< InterceptInfo > & self_cache ) const
 {
     AngleDeg dash_angle = M_world.self().body();
@@ -760,7 +751,7 @@ SelfInterceptTackle::predictDashCycleShort( const int cycle,
                                             const AngleDeg & dash_angle,
                                             const double & control_area,
                                             const bool save_recovery,
-                                            const bool back_dash,
+                                            const bool /*back_dash*/,
                                             std::vector< InterceptInfo > & self_cache ) const
 {
     const ServerParam & SP = ServerParam::i();
@@ -1174,7 +1165,7 @@ SelfInterceptTackle::predictAdjustOmniDash( const int cycle,
                                             const Vector2D & ball_pos,
                                             const double & control_area,
                                             const bool save_recovery,
-                                            const bool back_dash,
+                                            const bool /*back_dash*/,
                                             const double & dash_rel_dir,
                                             Vector2D * my_pos,
                                             Vector2D * my_vel,
@@ -1567,9 +1558,9 @@ SelfInterceptTackle::canReachAfterTurnDash( const int cycle,
 int
 SelfInterceptTackle::predictTurnCycle( const int cycle,
                                        const Vector2D & ball_pos,
-                                       const double & control_area,
+                                       const double & /*control_area*/,
                                        AngleDeg * dash_angle,
-                                       bool * back_dash ) const
+                                       bool * /*back_dash*/ ) const
 {
     const PlayerType & ptype = M_world.self().playerType();
 
@@ -1583,7 +1574,7 @@ SelfInterceptTackle::predictTurnCycle( const int cycle,
     const AngleDeg target_angle = target_rel.th();
 
     double angle_diff = ( target_angle - (*dash_angle) ).degree();
-    const bool diff_is_positive = ( angle_diff > 0.0 ? true : false );
+    const bool diff_is_positive = angle_diff > 0.0;
     angle_diff = std::fabs( angle_diff );
 
     ///////////////////////////////////////////////////
@@ -1882,8 +1873,6 @@ SelfInterceptTackle::canReachAfterDash( const int n_turn,
                           std::fabs( tmp_pos.y - ball_rel.y ) );
 #endif
             *result_recovery = stamina_model.recovery();
-
-            Vector2D inertia_pos = ptype.inertiaPoint( tmp_pos, tmp_vel, n_dash - ( i + 1 ) );
 
             Vector2D my_final_pos = M_world.self().pos() + tmp_pos.rotate( dash_angle );
             if ( my_inertia.dist2( my_final_pos ) > 0.01 )

@@ -91,7 +91,7 @@ Body_Intercept2009::execute( PlayerAgent * agent )
     }
 
     /////////////////////////////////////////////
-    int ignore_intercept = 0;
+    unsigned int ignore_intercept = 0;
     InterceptInfo best_intercept = getBestIntercept( wm, table, ignore_intercept );
     //InterceptInfo best_intercept_test = getBestIntercept( wm, table );
     if(ignore_intercept == table->selfCache().size())
@@ -235,7 +235,7 @@ Body_Intercept2009::doKickableOpponentCheck( PlayerAgent * agent )
 InterceptInfo
 Body_Intercept2009::getBestIntercept( const WorldModel & wm,
                                       const InterceptTable * table,
-                                      int &ignore_intercept) const
+                                      unsigned int &ignore_intercept) const
 {
     const ServerParam & SP = ServerParam::i();
     const std::vector< InterceptInfo > & cache = table->selfCache();
@@ -1198,7 +1198,7 @@ Body_Intercept2009::executeTackle( PlayerAgent * agent )
     }
 
     /////////////////////////////////////////////
-    int ignore_intercept = 0;
+    unsigned int ignore_intercept = 0;
     InterceptInfo best_intercept = getBestInterceptTackle( wm, table,ignore_intercept );
     if(ignore_intercept == table->selfCache().size())
         return false;
@@ -1292,7 +1292,7 @@ Body_Intercept2009::executeTackle( PlayerAgent * agent )
 InterceptInfo
 Body_Intercept2009::getBestInterceptTackle( const WorldModel & wm,
                                       const InterceptTable * table,
-                                      int &ignore_intercept) const
+                                      unsigned int &/*ignore_intercept*/) const
 {
     const ServerParam & SP = ServerParam::i();
     const std::vector< InterceptInfo > & cache = table->selfCacheTackle();
@@ -1315,11 +1315,8 @@ Body_Intercept2009::getBestInterceptTackle( const WorldModel & wm,
     const double max_pitch_y = ( SP.keepawayMode()
                                  ? SP.keepawayWidth() * 0.5 - 1.0
                                  : SP.pitchHalfWidth() );
-    const double penalty_x = SP.ourPenaltyAreaLineX();
-    const double penalty_y = SP.penaltyAreaHalfWidth();
     const double speed_max = wm.self().playerType().realSpeedMax() * 0.9;
     const int opp_min = table->opponentReachCycle();
-    const int mate_min = table->teammateReachCycle();
     //const PlayerObject * fastest_opponent = table->fastestOpponent();
 
     const InterceptInfo * noturn_best = static_cast< InterceptInfo * >( 0 );
@@ -1334,14 +1331,12 @@ Body_Intercept2009::getBestInterceptTackle( const WorldModel & wm,
         const int cycle = cache[i].reachCycle();
         const Vector2D self_pos = wm.self().inertiaPoint( cycle );
         const Vector2D ball_pos = wm.ball().inertiaPoint( cycle );
-        const Vector2D ball_vel = wm.ball().vel() * std::pow( SP.ballDecay(), cycle );
 
 #ifdef DEBUG_PRINT
         dlog.addText( Logger::INTERCEPT,
-                      "intercept %d: cycle=%d t=%d d=%d pos=(%.2f %.2f) vel=(%.2f %.1f) trap_ball_dist=%f",
+                      "intercept %d: cycle=%d t=%d d=%d pos=(%.2f %.2f) trap_ball_dist=%f",
                       i,  cycle, cache[i].turnCycle(), cache[i].dashCycle(),
                       ball_pos.x, ball_pos.y,
-                      ball_vel.x, ball_vel.y,
                       cache[i].ballDist() );
 #endif
         if ( M_save_recovery

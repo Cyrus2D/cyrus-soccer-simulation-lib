@@ -109,11 +109,11 @@ private:
     */
     InterceptInfo getBestIntercept( const WorldModel & wm,
                                     const InterceptTable * table,
-                                    int &ignore_intercept) const;
+                                    unsigned int &ignore_intercept) const;
 
     InterceptInfo getBestInterceptTackle( const WorldModel & wm,
                                     const InterceptTable * table,
-                                    int &ignore_intercept) const;
+                                    unsigned int &ignore_intercept) const;
 
     InterceptInfo getBestIntercept_Test( const WorldModel & wm,
                                          const InterceptTable * table ) const;
