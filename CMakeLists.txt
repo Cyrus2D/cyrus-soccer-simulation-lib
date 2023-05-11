@@ -19,7 +19,10 @@ endif()
 set(CMAKE_CXX_FLAGS "-W -Wall")
 
 # install destination
-set(TEAM_DIR "")
+if(NOT DEFINED TEAM_DIR)
+	set(TEAM_DIR "")
+endif()
+message("${TEAM_DIR}")
 set(LIB_PATH "${TEAM_DIR}")
 if(LIB_PATH STREQUAL "")
   set(LIB_PATH "$ENV{HOME}/local/cyruslib")
