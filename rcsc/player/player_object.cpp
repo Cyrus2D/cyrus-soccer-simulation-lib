@@ -60,7 +60,9 @@ int PlayerObject::S_player_count = 0;
 PlayerObject::PlayerObject()
     : AbstractPlayerObject( ++S_player_count ),
       M_ghost_count( 0 ),
-      M_tackle_count( 1000 )
+      M_tackle_count( 1000 ),
+      M_seen_dist(1000),
+      M_seen_angle(-360)
 {
 
 }
@@ -76,6 +78,8 @@ PlayerObject::PlayerObject( const SideID side,
       M_tackle_count( 1000 )
 {
     M_dist_from_self = p.rpos_.r();
+    M_seen_dist = p.seen_dist;
+    M_seen_angle = p.seen_angle;
 
     if ( p.hasVel() )
     {
@@ -219,6 +223,9 @@ PlayerObject::updateBySee( const SideID side,
 {
     M_side = side;
     M_ghost_count = 0;
+
+    M_seen_dist = p.seen_dist;
+    M_seen_angle = p.seen_angle;
 
     // unum is updated only when unum is seen.
     if ( p.unum_ != Unum_Unknown )

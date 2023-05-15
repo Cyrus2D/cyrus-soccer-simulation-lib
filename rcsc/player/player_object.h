@@ -77,6 +77,9 @@ private:
 
     std::list< Vector2D > M_pos_history;
 
+    double M_seen_dist;
+    double M_seen_angle;
+
 public:
 
     /*!
@@ -306,6 +309,15 @@ public:
     */
     void forget();
 
+    double seen_dist() const
+    {
+          return M_seen_dist;
+    }
+
+    double seen_angle() const
+    {
+          return M_seen_angle;
+    }
 };
 
 }
