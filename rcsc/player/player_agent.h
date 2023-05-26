@@ -142,6 +142,10 @@ public:
           return M_worldmodel;
       }
 
+    WorldModel & world_not_const()
+      {
+          return M_worldmodel;
+      }
     /*!
       \brief get fullstate worldmodel
       \return const reference to fullstate world model instance
