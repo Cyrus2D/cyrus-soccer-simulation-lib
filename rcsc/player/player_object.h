@@ -58,7 +58,7 @@ public:
     typedef std::list< PlayerObject > List;
 
     //! type of the player object pointer container
-    typedef std::vector< const PlayerObject * > Cont;
+    typedef std::vector< PlayerObject * > Cont;
 
 
 private:

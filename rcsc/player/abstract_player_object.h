@@ -56,6 +56,7 @@ public:
 
     //! type of pointer container
     typedef std::vector< const AbstractPlayerObject * > Cont;
+    Vector2D M_pos; //!< global coordinate
 
 protected:
 
@@ -69,7 +70,7 @@ protected:
     const PlayerType * M_player_type; //!< player type reference
     Card M_card; //!< card information
 
-    Vector2D M_pos; //!< global coordinate
+
     int M_pos_count; //!< main accuracy counter
 
     Vector2D M_seen_pos; //!< last seen global coordinate

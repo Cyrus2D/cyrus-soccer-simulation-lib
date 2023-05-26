@@ -75,6 +75,10 @@ public:
 
     static const std::size_t MAX_RECORD; //!< max record size
     static const double DIR_STEP; //!< the angle steps for dir confidence
+    PlayerObject::Cont M_teammates_from_self; //!< teammates sorted by distance from self
+    PlayerObject::Cont M_opponents_from_self; //!< opponents sorted by distance from ball, include unknown players
+    PlayerObject::Cont M_teammates_from_ball; //!< teammates sorted by distance from self
+    PlayerObject::Cont M_opponents_from_ball; //!< opponents sorted by distance from ball, include unknown players
 
 private:
 
@@ -122,10 +126,6 @@ private:
     //////////////////////////////////////////////////
     // object reference (pointers to each object)
     // these containers are updated just before decision making
-    PlayerObject::Cont M_teammates_from_self; //!< teammates sorted by distance from self
-    PlayerObject::Cont M_opponents_from_self; //!< opponents sorted by distance from ball, include unknown players
-    PlayerObject::Cont M_teammates_from_ball; //!< teammates sorted by distance from self
-    PlayerObject::Cont M_opponents_from_ball; //!< opponents sorted by distance from ball, include unknown players
 
     int M_our_goalie_unum; //!< uniform number of teammate goalie
     int M_their_goalie_unum; //!< uniform number of opponent goalie
