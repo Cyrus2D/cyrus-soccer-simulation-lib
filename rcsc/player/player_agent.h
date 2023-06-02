@@ -371,6 +371,7 @@ private:
     */
     void action();
 
+    virtual void update_player_by_denoiser();
 protected:
 
     /*!

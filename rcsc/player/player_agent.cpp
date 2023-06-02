@@ -2444,6 +2444,9 @@ PlayerAgent::Impl::analyzeWarning( const char * msg )
 /*!
 
  */
+
+void PlayerAgent::update_player_by_denoiser(){}
+
 void
 PlayerAgent::action()
 {
@@ -2484,14 +2487,20 @@ PlayerAgent::action()
     // ------------------------------------------------------------------------
     // last update
     // update positining matrix, offside line, defense line, etc.
-    M_worldmodel.updateJustBeforeDecision( effector(),
-                                           M_impl->current_time_ );
     if ( config().debugFullstate()
          && M_fullstate_worldmodel.isValid() )
     {
-        M_fullstate_worldmodel.updateJustBeforeDecision( effector(),
-                                                         M_impl->current_time_ );
+        M_fullstate_worldmodel.updateJustBeforeDecision1( effector(),
+                                                          M_impl->current_time_ );
+        M_fullstate_worldmodel.updateJustBeforeDecision2( effector(),
+                                                          M_impl->current_time_ );
     }
+    M_worldmodel.updateJustBeforeDecision1( effector(),
+                                            M_impl->current_time_ );
+    update_player_by_denoiser();
+    M_worldmodel.updateJustBeforeDecision2( effector(),
+                                            M_impl->current_time_ );
+
 
     // reset last action effect
     M_effector.reset();

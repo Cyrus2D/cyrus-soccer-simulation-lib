@@ -412,9 +412,11 @@ public:
       This method is called just before action decision to update and
       adjust world model.
     */
-    void updateJustBeforeDecision( const ActionEffector & act,
-                                   const GameTime & current );
+    void updateJustBeforeDecision1( const ActionEffector & act,
+                                    const GameTime & current );
 
+    void updateJustBeforeDecision2( const ActionEffector & act,
+                                    const GameTime & current );
     /*!
       \brief update using internal by command effects. This method is called just before command sending.
       \param act ActionEffector object.
