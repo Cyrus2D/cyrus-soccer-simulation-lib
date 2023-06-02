@@ -57,6 +57,7 @@ public:
     //! type of pointer container
     typedef std::vector< const AbstractPlayerObject * > Cont;
     Vector2D M_pos; //!< global coordinate
+    Vector2D M_base_pos; //!< global coordinate
 
 protected:
 
