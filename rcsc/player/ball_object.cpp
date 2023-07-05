@@ -79,7 +79,9 @@ BallObject::BallObject()
       M_lost_count( 0 ),
       M_ghost_count( 0 ),
       M_dist_from_self( 1000.0 ),
-      M_angle_from_self( 0.0 )
+      M_angle_from_self( 0.0 ),
+      M_seen_dist(1000.),
+      M_seen_angle(-360.)
 {
 
 }

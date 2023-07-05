@@ -2144,8 +2144,8 @@ WorldModel::updatePlayerStaminaByHear()
 
  */
 void
-WorldModel::updateJustBeforeDecision( const ActionEffector & act,
-                                      const GameTime & current )
+WorldModel::updateJustBeforeDecision1( const ActionEffector & act,
+                                       const GameTime & current )
 {
     if ( time() != current )
     {
@@ -2188,6 +2188,12 @@ WorldModel::updateJustBeforeDecision( const ActionEffector & act,
     }
 #endif
 
+}
+
+void
+WorldModel::updateJustBeforeDecision2( const ActionEffector & act,
+                                       const GameTime & current )
+{
     updateOurOffenseLine();
     updateOurDefenseLine();
     updateTheirOffenseLine();
@@ -2208,7 +2214,6 @@ WorldModel::updateJustBeforeDecision( const ActionEffector & act,
                                 M_intercept_table->teammateReachCycle(),
                                 M_intercept_table->opponentReachCycle() );
 }
-
 /*-------------------------------------------------------------------*/
 /*!
 
@@ -2431,6 +2436,8 @@ WorldModel::localizeBall( const VisualSensor & see,
 #endif
         return;
     }
+
+    M_ball.set_seen_info(see.balls().front().dist_, self().face().degree() + see.balls().front().dir_);
 
     if ( ! rpos.isValid() )
     {

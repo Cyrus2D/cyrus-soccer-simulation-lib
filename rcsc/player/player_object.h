@@ -58,7 +58,7 @@ public:
     typedef std::list< PlayerObject > List;
 
     //! type of the player object pointer container
-    typedef std::vector< const PlayerObject * > Cont;
+    typedef std::vector< PlayerObject * > Cont;
 
 
 private:
@@ -76,6 +76,9 @@ private:
     int M_tackle_count; //!< time count since the last tackle observation
 
     std::list< Vector2D > M_pos_history;
+
+    double M_seen_dist;
+    double M_seen_angle;
 
 public:
 
@@ -306,6 +309,15 @@ public:
     */
     void forget();
 
+    double seen_dist() const
+    {
+          return M_seen_dist;
+    }
+
+    double seen_angle() const
+    {
+          return M_seen_angle;
+    }
 };
 
 }

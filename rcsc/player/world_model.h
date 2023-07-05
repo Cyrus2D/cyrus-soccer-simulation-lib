@@ -75,6 +75,11 @@ public:
 
     static const std::size_t MAX_RECORD; //!< max record size
     static const double DIR_STEP; //!< the angle steps for dir confidence
+    PlayerObject::Cont M_teammates_from_self; //!< teammates sorted by distance from self
+    PlayerObject::Cont M_opponents_from_self; //!< opponents sorted by distance from ball, include unknown players
+    PlayerObject::Cont M_teammates_from_ball; //!< teammates sorted by distance from self
+    PlayerObject::Cont M_opponents_from_ball; //!< opponents sorted by distance from ball, include unknown players
+    BallObject M_ball; //!< current ball object
 
 private:
 
@@ -113,7 +118,6 @@ private:
     //////////////////////////////////////////////////
     // field object instance
     SelfObject M_self; //!< self object
-    BallObject M_ball; //!< current ball object
     BallObject M_prev_ball; //!< ball object in the previous cycle
     PlayerObject::List M_teammates; //!< teammmates instance. at least, the side information is observed
     PlayerObject::List M_opponents; //!< opponents instance. at least, the side information is observed
@@ -122,10 +126,6 @@ private:
     //////////////////////////////////////////////////
     // object reference (pointers to each object)
     // these containers are updated just before decision making
-    PlayerObject::Cont M_teammates_from_self; //!< teammates sorted by distance from self
-    PlayerObject::Cont M_opponents_from_self; //!< opponents sorted by distance from ball, include unknown players
-    PlayerObject::Cont M_teammates_from_ball; //!< teammates sorted by distance from self
-    PlayerObject::Cont M_opponents_from_ball; //!< opponents sorted by distance from ball, include unknown players
 
     int M_our_goalie_unum; //!< uniform number of teammate goalie
     int M_their_goalie_unum; //!< uniform number of opponent goalie
@@ -412,9 +412,11 @@ public:
       This method is called just before action decision to update and
       adjust world model.
     */
-    void updateJustBeforeDecision( const ActionEffector & act,
-                                   const GameTime & current );
+    void updateJustBeforeDecision1( const ActionEffector & act,
+                                    const GameTime & current );
 
+    void updateJustBeforeDecision2( const ActionEffector & act,
+                                    const GameTime & current );
     /*!
       \brief update using internal by command effects. This method is called just before command sending.
       \param act ActionEffector object.
