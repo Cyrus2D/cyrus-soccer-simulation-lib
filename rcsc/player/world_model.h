@@ -79,6 +79,7 @@ public:
     PlayerObject::Cont M_opponents_from_self; //!< opponents sorted by distance from ball, include unknown players
     PlayerObject::Cont M_teammates_from_ball; //!< teammates sorted by distance from self
     PlayerObject::Cont M_opponents_from_ball; //!< opponents sorted by distance from ball, include unknown players
+    BallObject M_ball; //!< current ball object
 
 private:
 
@@ -117,7 +118,6 @@ private:
     //////////////////////////////////////////////////
     // field object instance
     SelfObject M_self; //!< self object
-    BallObject M_ball; //!< current ball object
     BallObject M_prev_ball; //!< ball object in the previous cycle
     PlayerObject::List M_teammates; //!< teammmates instance. at least, the side information is observed
     PlayerObject::List M_opponents; //!< opponents instance. at least, the side information is observed

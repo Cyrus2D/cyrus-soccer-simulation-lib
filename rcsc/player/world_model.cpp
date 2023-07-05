@@ -2437,6 +2437,8 @@ WorldModel::localizeBall( const VisualSensor & see,
         return;
     }
 
+    M_ball.set_seen_info(see.balls().front().dist_, self().face().degree() + see.balls().front().dir_);
+
     if ( ! rpos.isValid() )
     {
 #ifdef DEBUG_PRINT_BALL_UPDATE
