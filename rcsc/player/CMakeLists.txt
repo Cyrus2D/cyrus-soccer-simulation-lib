@@ -75,5 +75,6 @@ install(FILES
   stamina_with_pointto.h
   self_intercept_v13_cyrus.h
   self_intercept_tackle.h
+  cut_ball_calculator.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rcsc/player
   )

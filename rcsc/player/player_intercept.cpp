@@ -37,6 +37,7 @@
 #include "world_model.h"
 #include "ball_object.h"
 #include "player_object.h"
+#include "cut_ball_calculator.h"
 
 #include <rcsc/common/logger.h>
 #include <rcsc/common/server_param.h>
@@ -325,7 +326,7 @@ PlayerIntercept::canReachAfterTurnDashCyrus( const PlayerData & data,
     int dash_cycle;
     int turn_cycle;
     int view_cycle;
-    int n_step = data.player_.cycles_to_cut_ball(M_world,
+    int n_step = CutBallCalculator().cycles_to_cut_ball(&data.player_, M_world,
                                                  ball_pos,
                                                  total_step,
                                                  false,
