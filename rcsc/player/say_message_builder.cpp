@@ -200,13 +200,6 @@ PassMessage::printDebug( std::ostream & os ) const
 /*!
 
 */
-
-
-/*-------------------------------------------------------------------*/
-/*!
-
-*/
-
 bool
 GoalieMessage::appendTo( std::string & to ) const
 {
@@ -1142,6 +1135,10 @@ OnePlayerMessage::appendTo( std::string & to ) const
     return true;
 }
 
+/*-------------------------------------------------------------------*/
+/*!
+
+*/
 std::ostream &
 OnePlayerMessage::printDebug( std::ostream & os ) const
 {
@@ -1171,6 +1168,10 @@ TwoPlayerMessage::TwoPlayerMessage( const int player0_unum,
     M_player_pos[1] = player1_pos;
 }
 
+/*-------------------------------------------------------------------*/
+/*!
+
+*/
 bool
 TwoPlayerMessage::appendTo( std::string & to ) const
 {
@@ -1251,6 +1252,10 @@ TwoPlayerMessage::appendTo( std::string & to ) const
     return true;
 }
 
+/*-------------------------------------------------------------------*/
+/*!
+
+*/
 std::ostream &
 TwoPlayerMessage::printDebug( std::ostream & os ) const
 {
@@ -1289,6 +1294,10 @@ ThreePlayerMessage::ThreePlayerMessage( const int player0_unum,
     M_player_pos[2] = player2_pos;
 }
 
+/*-------------------------------------------------------------------*/
+/*!
+
+*/
 bool
 ThreePlayerMessage::appendTo( std::string & to ) const
 {
@@ -1369,6 +1378,10 @@ ThreePlayerMessage::appendTo( std::string & to ) const
     return true;
 }
 
+/*-------------------------------------------------------------------*/
+/*!
+
+*/
 std::ostream &
 ThreePlayerMessage::printDebug( std::ostream & os ) const
 {

@@ -204,6 +204,7 @@ PassMessageParser::parse( const int sender,
     return slength();
 }
 
+
 /*-------------------------------------------------------------------*/
 /*!
 
@@ -1218,6 +1219,10 @@ TwoPlayerMessageParser::TwoPlayerMessageParser( std::shared_ptr< AudioMemory > m
 
 }
 
+/*-------------------------------------------------------------------*/
+/*!
+
+*/
 int
 TwoPlayerMessageParser::parse( const int sender,
                                const double & ,
@@ -1312,6 +1317,7 @@ TwoPlayerMessageParser::parse( const int sender,
     return slength();
 }
 
+
 /*-------------------------------------------------------------------*/
 /*!
 
@@ -1322,6 +1328,10 @@ ThreePlayerMessageParser::ThreePlayerMessageParser( std::shared_ptr< AudioMemory
 
 }
 
+/*-------------------------------------------------------------------*/
+/*!
+
+*/
 int
 ThreePlayerMessageParser::parse( const int sender,
                                  const double & ,
@@ -1435,7 +1445,6 @@ ThreePlayerMessageParser::parse( const int sender,
 
     return slength();
 }
-
 
 /*-------------------------------------------------------------------*/
 /*!
