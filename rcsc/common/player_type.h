@@ -78,7 +78,6 @@ private:
     // player never reach player_speed_max
     double M_real_speed_max;
 
-
     double M_player_speed_max2; // squared value
     double M_real_speed_max2;   // squared value
 
@@ -87,7 +86,6 @@ private:
 
     //! distance table by continuous dashes from the velocity 0.
     std::vector< double > M_dash_distance_table;
-
 
     // stamina cconsumption table by continuous dashes
     //std::vector< double > M_stamina_table;
