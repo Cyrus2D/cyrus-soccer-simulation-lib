@@ -390,7 +390,6 @@ public:
           return M_player_speed_max2;
       }
 
-
     /*!
       \brief get the squared real speed max
       \return squared real speed max
@@ -399,7 +398,6 @@ public:
       {
           return M_real_speed_max2;
       }
-
 
     /*!
       \brief get dash reachable distance table
@@ -464,8 +462,6 @@ public:
       \return estimated cycles to reach
     */
     int cyclesToReachDistance( const double & dash_dist ) const;
-
-
     ////////////////////////////////////////////////
     /*!
       \brief check if this type player can over player_speed_max
