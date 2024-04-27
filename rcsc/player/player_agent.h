@@ -142,10 +142,6 @@ public:
           return M_worldmodel;
       }
 
-    WorldModel & world_not_const()
-      {
-          return M_worldmodel;
-      }
     /*!
       \brief get fullstate worldmodel
       \return const reference to fullstate world model instance
@@ -370,8 +366,6 @@ private:
       \brief main action decision.
     */
     void action();
-
-    virtual void update_player_by_denoiser();
 protected:
 
     /*!
@@ -549,7 +543,12 @@ protected:
      */
     void removeFreeformMessageParser( const std::string & type );
 
-
+public:
+    WorldModel & world_not_const()
+    {
+        return M_worldmodel;
+    }
+    virtual void update_player_by_denoiser();
 };
 
 }
