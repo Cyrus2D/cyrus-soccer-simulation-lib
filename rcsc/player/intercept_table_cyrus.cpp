@@ -60,9 +60,8 @@ const int MAX_STEP = 50;
 /*!
 
 */
-InterceptTableCyrus::InterceptTableCyrus( const WorldModel & world )
-    : M_world( world ),
-      M_update_time( 0, 0 )
+InterceptTableCyrus::InterceptTableCyrus( const WorldModel & wm )
+    : M_update_time( 0, 0 )
 {
     M_self_results.reserve( ( MAX_STEP + 1 ) * 2 );
 
@@ -104,11 +103,11 @@ InterceptTableCyrus::clear()
 void
 InterceptTableCyrus::update(const WorldModel & wm)
 {
-    if ( M_world.time() == M_update_time )
+    if ( wm.time() == M_update_time )
     {
         return;
     }
-    M_update_time = M_world.time();
+    M_update_time = wm.time();
 
 #ifdef DEBUG_PRINT
     dlog.addText( Logger::INTERCEPT,
@@ -120,14 +119,14 @@ InterceptTableCyrus::update(const WorldModel & wm)
     this->clear();
 
     // playmode check
-    if ( M_world.gameMode().type() == GameMode::TimeOver
-         || M_world.gameMode().type() == GameMode::BeforeKickOff )
+    if ( wm.gameMode().type() == GameMode::TimeOver
+         || wm.gameMode().type() == GameMode::BeforeKickOff )
     {
         return;
     }
 
-    if ( ! M_world.self().posValid()
-         || ! M_world.ball().posValid() )
+    if ( ! wm.self().posValid()
+         || ! wm.ball().posValid() )
     {
         dlog.addText( Logger::INTERCEPT,
                       __FILE__" (update) Invalid self or ball pos" );
@@ -135,9 +134,9 @@ InterceptTableCyrus::update(const WorldModel & wm)
     }
 
 #ifdef DEBUG
-    if ( M_world.self().isKickable()
-         || M_world.kickableTeammate()
-         || M_world.kickableOpponent() )
+    if ( wm.self().isKickable()
+         || wm.kickableTeammate()
+         || wm.kickableOpponent() )
     {
         dlog.addText( Logger::INTERCEPT,
                       __FILE__" (update) Already exist kickable player" );
@@ -225,7 +224,7 @@ InterceptTableCyrus::update(const WorldModel & wm)
 
 */
 void
-InterceptTableCyrus::hearTeammate( const WorldModel & world, const int unum,
+InterceptTableCyrus::hearTeammate( const WorldModel & wm, const int unum,
                               const int step )
 {
     if ( M_first_teammate
@@ -235,7 +234,7 @@ InterceptTableCyrus::hearTeammate( const WorldModel & world, const int unum,
     }
 
     const PlayerObject * target = nullptr;
-    for ( const PlayerObject * t : M_world.teammates() )
+    for ( const PlayerObject * t : wm.teammates() )
     {
         if ( t->unum() == unum )
         {
@@ -266,7 +265,7 @@ InterceptTableCyrus::hearTeammate( const WorldModel & world, const int unum,
 
 */
 void
-InterceptTableCyrus::hearOpponent( const WorldModel & world, const int unum,
+InterceptTableCyrus::hearOpponent( const WorldModel & wm, const int unum,
                               const int step )
 {
     if ( M_first_opponent )
@@ -295,7 +294,7 @@ InterceptTableCyrus::hearOpponent( const WorldModel & world, const int unum,
 
     const PlayerObject * p = nullptr;
 
-    for ( const PlayerObject * i : M_world.opponents() )
+    for ( const PlayerObject * i : wm.opponents() )
     {
         if ( i->unum() == unum )
         {
@@ -329,7 +328,7 @@ InterceptTableCyrus::hearOpponent( const WorldModel & world, const int unum,
 void
 InterceptTableCyrus::predictSelf(const WorldModel & wm)
 {
-    if ( M_world.self().isKickable() )
+    if ( wm.self().isKickable() )
     {
         dlog.addText( Logger::INTERCEPT,
                       "Intercept Self. already kickable. no estimation loop!" );
@@ -348,12 +347,12 @@ InterceptTableCyrus::predictSelf(const WorldModel & wm)
     std::shared_ptr< InterceptSimulatorSelf > sim_tackle( new SelfInterceptTackle() );
     sim->simulate( wm, max_step, M_self_results_tackle );
     //    SelfInterceptSimulator sim;
-    //    sim.simulate( M_world, max_step, M_self_results );
+    //    sim.simulate( wm, max_step, M_self_results );
 
     if ( M_self_results.empty() )
     {
-        std::cerr << M_world.self().unum() << ' '
-                  << M_world.time()
+        std::cerr << wm.self().unum() << ' '
+                  << wm.time()
                   << " Interecet Self cache is empty!"
                   << std::endl;
         dlog.addText( Logger::INTERCEPT,
@@ -402,12 +401,12 @@ InterceptTableCyrus::predictSelf(const WorldModel & wm)
         M_self_step = min_step;
         M_self_exhaust_step = exhaust_min_step;
 
-        //M_player_map.insert( std::pair< const AbstractPlayerObject *, int >( &(M_world.self()), min_step ) );
+        //M_player_map.insert( std::pair< const AbstractPlayerObject *, int >( &(wm.self()), min_step ) );
     }
     if ( M_self_results_tackle.empty() )
     {
-        std::cerr << M_world.self().unum() << ' '
-                  << M_world.time()
+        std::cerr << wm.self().unum() << ' '
+                  << wm.time()
                   << " Interecet Self cache tackle is empty!"
                   << std::endl;
         dlog.addText( Logger::INTERCEPT,
@@ -460,11 +459,11 @@ InterceptTableCyrus::predictTeammate(const WorldModel & wm)
     int min_step = 1000;
     int second_min_step = 1000;
 
-    if ( M_world.kickableTeammate() )
+    if ( wm.kickableTeammate() )
     {
         M_teammate_step = 0;
         min_step = 0;
-        M_first_teammate = M_world.kickableTeammate();
+        M_first_teammate = wm.kickableTeammate();
 
         dlog.addText( Logger::INTERCEPT,
                       "Intercept Teammate. exist kickable teammate" );
@@ -477,9 +476,9 @@ InterceptTableCyrus::predictTeammate(const WorldModel & wm)
     PlayerIntercept sim( wm.ball().pos(),
                                   ( wm.kickableOpponent() ? Vector2D( 0.0, 0.0 ) : wm.ball().vel() ) );
 
-    for ( const PlayerObject * t : M_world.teammatesFromBall() )
+    for ( const PlayerObject * t : wm.teammatesFromBall() )
     {
-        if ( t == M_world.kickableTeammate() )
+        if ( t == wm.kickableTeammate() )
         {
             M_player_map[ t ] = 0;
             continue;
@@ -553,11 +552,11 @@ InterceptTableCyrus::predictOpponent(const WorldModel & wm)
     int min_step = 1000;
     int second_min_step = 1000;
 
-    if ( M_world.kickableOpponent() )
+    if ( wm.kickableOpponent() )
     {
         M_opponent_step = 0;
         min_step = 0;
-        M_first_opponent = M_world.kickableOpponent();
+        M_first_opponent = wm.kickableOpponent();
 
         dlog.addText( Logger::INTERCEPT,
                       "Intercept Opponent. exist kickable opponent" );
@@ -570,9 +569,9 @@ InterceptTableCyrus::predictOpponent(const WorldModel & wm)
     PlayerIntercept sim( wm.ball().pos(),
                          ( wm.kickableOpponent() ? Vector2D( 0.0, 0.0 ) : wm.ball().vel() ) );
 
-    for ( const PlayerObject * o : M_world.opponentsFromBall() )
+    for ( const PlayerObject * o : wm.opponentsFromBall() )
     {
-        if ( o == M_world.kickableOpponent() )
+        if ( o == wm.kickableOpponent() )
         {
             M_player_map[ o ] = 0;
             continue;

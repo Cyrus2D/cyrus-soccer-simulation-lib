@@ -60,9 +60,6 @@ class WorldModel;
 class InterceptTableCyrus {
 private:
 
-    //! reference to the WorldModel instance
-    const WorldModel & M_world;
-
     //! last updated time
     GameTime M_update_time;
 
