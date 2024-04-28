@@ -395,8 +395,8 @@ InterceptTableCyrus::predictSelf(const WorldModel & wm)
 
     int max_step = std::min( MAX_STEP, static_cast< int >( M_ball_cache.size() ) );
 
-    SelfInterceptV13 predictor( M_world, M_ball_cache );
-    predictor.predict( max_step, M_self_results );
+    std::shared_ptr< InterceptSimulatorSelf > sim( new SelfInterceptV13() );
+    sim->simulate( wm, max_step, M_self_results );
 
     SelfInterceptTackle predictor_tackle( M_world, M_ball_cache );
     predictor_tackle.predict( max_step, M_self_results_tackle );
