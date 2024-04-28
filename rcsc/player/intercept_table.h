@@ -58,10 +58,8 @@ private:
 
     //! predicted min reach step for self without stamina exhaust
     int M_self_step;
-    int M_self_step_tackle;
     //! predicted min reach step for self with stamina exhaust
     int M_self_exhaust_step;
-    int M_self_exhaust_step_tackle;
 
     //! predicted min reach step for teammate
     int M_teammate_step;
@@ -138,19 +136,13 @@ public:
       \return step value to get the ball
     */
     int selfStep() const { return M_self_step; }
-    int selfStepTackle() const
-    {
-        return M_self_step_tackle;
-    }
+
     /*!
       \brief get minimal ball gettable step for self with stamina exhaust
       \return step value to get the ball
     */
     int selfExhaustStep() const { return M_self_exhaust_step; }
-    int selfExhaustStepTackle() const
-    {
-        return M_self_exhaust_step_tackle;
-    }
+
     /*!
       \brief get minimal ball gettable step for teammate
       \return step value to get the ball
@@ -218,10 +210,6 @@ public:
         return M_self_results;
     }
 
-    const std::vector< Intercept > & selfResultsTackle() const
-      {
-          return M_self_results_tackle;
-      }
     /*!
       \brief get all players' intercept step container.
       \return map container. key: pointer, value: step value

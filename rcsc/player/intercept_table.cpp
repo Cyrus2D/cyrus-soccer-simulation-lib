@@ -79,8 +79,6 @@ InterceptTable::clear()
 {
     M_self_step = 1000;
     M_self_exhaust_step = 1000;
-    M_self_step_tackle = 1000;
-    M_self_exhaust_step_tackle = 1000;
     M_teammate_step = 1000;
     M_second_teammate_step = 1000;
     M_our_goalie_step = 1000;
@@ -93,7 +91,6 @@ InterceptTable::clear()
     M_second_opponent = nullptr;
 
     M_self_results.clear();
-    M_self_results_tackle.clear();
 
     M_player_map.clear();
 }
@@ -338,8 +335,6 @@ InterceptTable::predictSelf( const WorldModel & wm )
                       "Intercept Self. already kickable. no estimation loop!" );
         M_self_step = 0;
         M_self_exhaust_step = 0;
-        M_self_step_tackle = 1;
-        M_self_exhaust_step_tackle = 1;
         return;
     }
 
