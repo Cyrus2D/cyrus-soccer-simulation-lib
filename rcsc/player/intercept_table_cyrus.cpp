@@ -64,7 +64,6 @@ InterceptTableCyrus::InterceptTableCyrus( const WorldModel & world )
     : M_world( world ),
       M_update_time( 0, 0 )
 {
-    M_ball_cache.reserve( MAX_STEP );
     M_self_results.reserve( ( MAX_STEP + 1 ) * 2 );
 
     clear();
@@ -77,8 +76,6 @@ InterceptTableCyrus::InterceptTableCyrus( const WorldModel & world )
 void
 InterceptTableCyrus::clear()
 {
-    M_ball_cache.clear();
-
     M_self_step = 1000;
     M_self_exhaust_step = 1000;
     M_self_step_tackle = 1000;
@@ -146,8 +143,6 @@ InterceptTableCyrus::update(const WorldModel & wm)
                       __FILE__" (update) Already exist kickable player" );
     }
 #endif
-
-    createBallCache();
 
 #ifdef DEBUG
     dlog.addText( Logger::INTERCEPT,
@@ -332,54 +327,6 @@ InterceptTableCyrus::hearOpponent( const WorldModel & world, const int unum,
 
 */
 void
-InterceptTableCyrus::createBallCache()
-{
-    const ServerParam & SP = ServerParam::i();
-    const double max_x = ( SP.keepawayMode()
-                               ? SP.keepawayLength() * 0.5
-                               : SP.pitchHalfLength() + 5.0 );
-    const double max_y = ( SP.keepawayMode()
-                               ? SP.keepawayWidth() * 0.5
-                               : SP.pitchHalfWidth() + 5.0 );
-    const double bdecay = SP.ballDecay();
-
-    Vector2D bpos = M_world.ball().pos();
-    Vector2D bvel = M_world.ball().vel();
-    double bspeed = bvel.r();
-
-    for ( int i = 0; i < MAX_STEP; ++i )
-    {
-        M_ball_cache.push_back( bpos );
-
-        if ( bspeed < 0.005 && i >= 10 )
-        {
-            break;
-        }
-
-        bpos += bvel;
-        bvel *= bdecay;
-        bspeed *= bdecay;
-
-        if ( max_x < bpos.absX()
-             || max_y < bpos.absY() )
-        {
-            break;
-        }
-    }
-
-#ifdef DEBUG_PRINT
-    dlog.addText( Logger::INTERCEPT,
-                  "(InterceptTableCyrus::createBallCache) size=%d last pos=(%.2f %.2f)",
-                  M_ball_cache.size(),
-                  M_ball_cache.back().x, M_ball_cache.back().y );
-#endif
-}
-
-/*-------------------------------------------------------------------*/
-/*!
-
-*/
-void
 InterceptTableCyrus::predictSelf(const WorldModel & wm)
 {
     if ( M_world.self().isKickable() )
@@ -393,7 +340,7 @@ InterceptTableCyrus::predictSelf(const WorldModel & wm)
         return;
     }
 
-    int max_step = std::min( MAX_STEP, static_cast< int >( M_ball_cache.size() ) );
+    constexpr int max_step = 50;
 
     std::shared_ptr< InterceptSimulatorSelf > sim( new SelfInterceptV13() );
     sim->simulate( wm, max_step, M_self_results );

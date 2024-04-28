@@ -66,9 +66,6 @@ private:
     //! last updated time
     GameTime M_update_time;
 
-    //! ball inertia movement position cache
-    std::vector< Vector2D > M_ball_cache;
-
     //! predicted min reach step for self without stamina exhaust
     int M_self_step;
     int M_self_step_tackle;
@@ -247,11 +244,6 @@ private:
       \brief clear all cached data
     */
     void clear();
-
-    /*!
-      \brief create cache of future ball status
-    */
-    void createBallCache();
 
     /*!
       \brief predict self interception
