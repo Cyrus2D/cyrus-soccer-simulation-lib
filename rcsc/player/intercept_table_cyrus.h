@@ -70,34 +70,34 @@ private:
     std::vector< Vector2D > M_ball_cache;
 
     //! predicted min reach step for self without stamina exhaust
-    int M_self_reach_step;
-    int M_self_reach_cycle_tackle;
+    int M_self_step;
+    int M_self_step_tackle;
     //! predicted min reach step for self with stamina exhaust
-    int M_self_exhaust_reach_step;
-    int M_self_exhaust_reach_cycle_tackle;
+    int M_self_exhaust_step;
+    int M_self_exhaust_step_tackle;
     //! predicted min reach step for teammate
-    int M_teammate_reach_step;
+    int M_teammate_step;
     //! predicted reach step for second fastest teammate
-    int M_second_teammate_reach_step;
+    int M_second_teammate_step;
     //! predicted min reach step for teammate goalie
-    int M_goalie_reach_step;
+    int M_our_goalie_step;
     //! predicted min reach step for opponent
-    int M_opponent_reach_step;
+    int M_opponent_step;
     //! predicted reach step for second fastest opponent
-    int M_second_opponent_reach_step;
+    int M_second_opponent_step;
 
     //! const pointer to the fastest ball gettable teammate player object
-    const PlayerObject * M_fastest_teammate;
+    const PlayerObject * M_first_teammate;
     //! const pointer to the second fastest ball gettable teammate player object
     const PlayerObject * M_second_teammate;
     //! const pointer to the fastest ball gettable opponent player object
-    const PlayerObject * M_fastest_opponent;
+    const PlayerObject * M_first_opponent;
     //! const pointer to the second fastest ball gettable opponent player object
     const PlayerObject * M_second_opponent;
 
     //! interception info cache for smart interception
-    std::vector< Intercept > M_self_cache;
-    std::vector< Intercept > M_self_cache_tackle;
+    std::vector< Intercept > M_self_results;
+    std::vector< Intercept > M_self_results_tackle;
 
     //! all players' intercept step container. key: pointer, value: step value
     std::map< const AbstractPlayerObject *, int > M_player_map;
@@ -148,56 +148,56 @@ public:
       \brief get minimal ball gettable step for self without stamina exhaust
       \return step value to get the ball
     */
-    int selfStep() const { return M_self_reach_step; }
+    int selfStep() const { return M_self_step; }
     int selfStepTackle() const
     {
-        return M_self_reach_cycle_tackle;
+        return M_self_step_tackle;
     }
     /*!
       \brief get minimal ball gettable step for self with stamina exhaust
       \return step value to get the ball
     */
-    int selfExhaustStep() const { return M_self_exhaust_reach_step; }
+    int selfExhaustStep() const { return M_self_exhaust_step; }
     int selfExhaustStepTackle() const
     {
-        return M_self_exhaust_reach_cycle_tackle;
+        return M_self_exhaust_step_tackle;
     }
     /*!
       \brief get minimal ball gettable step for teammate
       \return step value to get the ball
     */
-    int teammateStep() const { return M_teammate_reach_step; }
+    int teammateStep() const { return M_teammate_step; }
 
     /*!
       \brief get the ball access step for the second teammate
       \return step value to get the ball
     */
-    int secondTeammateStep() const { return M_second_teammate_reach_step; }
+    int secondTeammateStep() const { return M_second_teammate_step; }
 
     /*!
       \brief get the ball access step for the teammate goalie
       \return step value to get the ball
     */
-    int ourGoalieStep() const { return M_goalie_reach_step; }
+    int ourGoalieStep() const { return M_our_goalie_step; }
 
     /*!
       \brief get minimal ball gettable step for opponent
       \return step value to get the ball
     */
-    int opponentStep() const { return M_opponent_reach_step; }
+    int opponentStep() const { return M_opponent_step; }
 
     /*!
       \brief get the ball access step for the second opponent
       \return step value to get the ball
     */
-    int secondOpponentStep() const { return M_second_opponent_reach_step; }
+    int secondOpponentStep() const { return M_second_opponent_step; }
 
     /*!
       \brief get the teammate object fastest to the ball
       \return const pointer to the PlayerObject.
       if not exist such a player, return NULL
     */
-    const PlayerObject * firstTeammate() const { return M_fastest_teammate; }
+    const PlayerObject * firstTeammate() const { return M_first_teammate; }
 
     /*!
       \brief get the teammate object second fastest to the ball
@@ -211,7 +211,7 @@ public:
       \return const pointer to the PlayerObject.
       if not exist such a player, return NULL
     */
-    const PlayerObject * firstOpponent() const { return M_fastest_opponent; }
+    const PlayerObject * firstOpponent() const { return M_first_opponent; }
 
     /*!
       \brief get the oppnent object second fastest to the ball
@@ -226,12 +226,12 @@ public:
     */
     const std::vector< Intercept > & selfResults() const
     {
-        return M_self_cache;
+        return M_self_results;
     }
 
     const std::vector< Intercept > & selfResultsTackle() const
     {
-        return M_self_cache_tackle;
+        return M_self_results_tackle;
     }
     /*!
       \brief get all players' intercept step container.
@@ -255,18 +255,21 @@ private:
 
     /*!
       \brief predict self interception
+      \param wm const reference to the world model
     */
-    void predictSelf();
+    void predictSelf( const WorldModel & wm );
 
     /*!
       \predict teammate interception
+      \param wm const reference to the world model
     */
-    void predictTeammate();
+    void predictTeammate( const WorldModel & wm );
 
     /*!
       \predict opponent interception
+      \param wm const reference to the world model
     */
-    void predictOpponent();
+    void predictOpponent( const WorldModel & wm );
 };
 
 }
