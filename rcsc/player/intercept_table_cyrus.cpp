@@ -527,7 +527,8 @@ InterceptTableCyrus::predictTeammate(const WorldModel & wm)
                       M_first_teammate->pos().x, M_first_teammate->pos().y );
     }
 
-    PlayerIntercept predictor( M_world, M_ball_cache );
+    PlayerIntercept sim( wm.ball().pos(),
+                                  ( wm.kickableOpponent() ? Vector2D( 0.0, 0.0 ) : wm.ball().vel() ) );
 
     for ( const PlayerObject * t : M_world.teammatesFromBall() )
     {
@@ -547,11 +548,11 @@ InterceptTableCyrus::predictTeammate(const WorldModel & wm)
             continue;
         }
 
-        int step = predictor.predict( *t, false );
+        int step = sim.simulate( wm, *t, false );
         int goalie_step = 1000;
         if ( t->goalie() )
         {
-            goalie_step = predictor.predict( *t, true );
+            goalie_step = sim.simulate( wm, *t, true );
             if ( step > goalie_step )
             {
                 step = goalie_step;
@@ -619,7 +620,8 @@ InterceptTableCyrus::predictOpponent(const WorldModel & wm)
                       M_first_opponent->pos().x, M_first_opponent->pos().y );
     }
 
-    PlayerIntercept predictor( M_world, M_ball_cache );
+    PlayerIntercept sim( wm.ball().pos(),
+                         ( wm.kickableOpponent() ? Vector2D( 0.0, 0.0 ) : wm.ball().vel() ) );
 
     for ( const PlayerObject * o : M_world.opponentsFromBall() )
     {
@@ -639,10 +641,10 @@ InterceptTableCyrus::predictOpponent(const WorldModel & wm)
             continue;
         }
 
-        int step = predictor.predict( *o, false );
+        int step = sim.simulate( wm, *o, false );
         if ( o->goalie() )
         {
-            int goalie_step = predictor.predict( *o, true );
+            int goalie_step = sim.simulate( wm, *o, true );
             if ( goalie_step > 0
                  && step > goalie_step )
             {

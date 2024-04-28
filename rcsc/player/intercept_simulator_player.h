@@ -47,7 +47,7 @@ class WorldModel;
   \brief intercept simulator for other players
 */
 class InterceptSimulatorPlayer {
-private:
+public:
 
     /*!
       \struct PlayerData
@@ -120,7 +120,7 @@ public:
                   const PlayerObject & player,
                   const bool goalie ) const;
 
-private:
+public:
 
     /*!
       \brief create predicted ball positions
@@ -153,9 +153,6 @@ private:
                                 const Vector2D & ball_pos,
                                 const int total_step ) const;
 
-    bool canReachAfterTurnDashCyrus( const PlayerData & data,
-                                     const Vector2D & ball_pos,
-                                     const int total_step ) const;
     /*!
       \brief predict required cycle to face to the ball position
       \param cycle we consder the status 'cycle' cycles later
