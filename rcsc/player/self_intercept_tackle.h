@@ -86,7 +86,7 @@ public:
       to store the result
     */
     void predict( const int max_cycle,
-                  std::vector< InterceptInfo > & self_cache ) const;
+                  std::vector< Intercept > & self_cache ) const;
 
 
 private:
@@ -97,14 +97,14 @@ private:
       \brief predict one step action result
       \param self_cache reference to the cahce variable to store the result
     */
-    void predictOneStep( std::vector< InterceptInfo > & self_cache ) const;
+    void predictOneStep( std::vector< Intercept > & self_cache ) const;
 
     /*!
       \brief check if player can get the ball WITHOUT dash
       \param self_cache reference to the cahce variable to store the result
       \return true if player can get the ball without dash
     */
-    bool predictNoDash( std::vector< InterceptInfo > & self_cache ) const;
+    bool predictNoDash( std::vector< Intercept > & self_cache ) const;
 
     /*!
       \brief predict one dash result.
@@ -113,7 +113,7 @@ private:
       This method assumes that Y difference of ball next position is within
       control area
     */
-    bool predictOneDash( std::vector< InterceptInfo > & self_cache ) const;
+    bool predictOneDash( std::vector< Intercept > & self_cache ) const;
 
 
     /*!
@@ -123,7 +123,7 @@ private:
                                const Vector2D & forward_accel,
                                const Vector2D & back_accel,
                                const double & control_area,
-                               InterceptInfo * info ) const;
+                               Intercept * info ) const;
 
     /*!
       \brief estimate best dash power to trap the ball at the best point
@@ -151,14 +151,14 @@ private:
     */
     void predictShortStep( const int max_cycle,
                            const bool save_recovery,
-                           std::vector< InterceptInfo > & self_cache ) const;
+                           std::vector< Intercept > & self_cache ) const;
     void predictTurnDashShort( const int cycle,
                                const Vector2D & ball_pos,
                                const double & control_area,
                                const bool save_recovery,
                                const bool back_dash,
                                const double & turn_margin_control_area,
-                               std::vector< InterceptInfo > & self_cache ) const;
+                               std::vector< Intercept > & self_cache ) const;
     int predictTurnCycleShort( const int cycle,
                                const Vector2D & ball_pos,
                                const double & control_area,
@@ -172,13 +172,13 @@ private:
                                 const double & control_area,
                                 const bool save_recovery,
                                 const bool back_dash,
-                                std::vector< InterceptInfo > & self_cache ) const;
+                                std::vector< Intercept > & self_cache ) const;
     void predictOmniDashShort( const int cycle,
                                const Vector2D & ball_pos,
                                const double & control_area,
                                const bool save_recovery,
                                const bool back_dash,
-                               std::vector< InterceptInfo > & self_cache ) const;
+                               std::vector< Intercept > & self_cache ) const;
     int predictAdjustOmniDash( const int cycle,
                                const Vector2D & ball_pos,
                                const double & control_area,
@@ -201,7 +201,7 @@ private:
     */
     void predictLongStep( const int max_cycle,
                           const bool save_recovery,
-                          std::vector< InterceptInfo > & self_cache ) const;
+                          std::vector< Intercept > & self_cache ) const;
 
     /*!
       \brief predict reachable cycle to the ball final point
@@ -209,7 +209,7 @@ private:
       \param self_cache reference to the cahce variable to store the result
     */
     void predictFinal( const int max_cycle,
-                       std::vector< InterceptInfo > & self_cache ) const;
+                       std::vector< Intercept > & self_cache ) const;
 
     /*!
       \brief check if player can get the ball after cycle
@@ -229,7 +229,7 @@ private:
                                 int * n_turn,
                                 bool * back_dash,
                                 double * result_recovery,
-                                std::vector< InterceptInfo > & self_cache ) const;
+                                std::vector< Intercept > & self_cache ) const;
 
     /*!
       \brief predict required cycle to face to the ball position
@@ -277,7 +277,7 @@ private:
                             const AngleDeg & dash_angle,
                             const bool back_dash,
                             double * result_recovery,
-                            std::vector< InterceptInfo > & self_cache ) const;
+                            std::vector< Intercept > & self_cache ) const;
 
     //
     //
@@ -288,7 +288,7 @@ private:
                               const double & control_area,
                               const bool save_recovery,
                               const bool back_dash,
-                              std::vector< InterceptInfo > & self_cache ) const;
+                              std::vector< Intercept > & self_cache ) const;
 
     int predictTurnCycleLong( const int cycle,
                               const Vector2D & ball_pos,
@@ -303,7 +303,7 @@ private:
                                const double & control_area,
                                const bool save_recovery,
                                const bool back_dash,
-                               std::vector< InterceptInfo > & self_cache ) const;
+                               std::vector< Intercept > & self_cache ) const;
 };
 
 }

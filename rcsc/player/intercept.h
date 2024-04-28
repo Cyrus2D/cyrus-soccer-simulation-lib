@@ -85,6 +85,7 @@ private:
     double M_ball_dist; //!< estimated final ball distance
     double M_stamina; //!< estimated final stamina value
 
+    bool M_is_tackle; //!< is tackle action
 public:
 
     /*!
@@ -117,7 +118,8 @@ public:
                const double dash_dir,
                const Vector2D & self_pos,
                const double ball_dist,
-               const double stamina )
+               const double stamina,
+               const bool is_tackle = false )
         : M_index( -1 ),
           M_value( MIN_VALUE ),
           M_stamina_type( stamina_type ),
@@ -129,7 +131,8 @@ public:
           M_dash_dir( dash_dir ),
           M_self_pos( self_pos ),
           M_ball_dist( ball_dist ),
-          M_stamina( stamina )
+          M_stamina( stamina ),
+          M_is_tackle(is_tackle)
     { }
 
     /*!

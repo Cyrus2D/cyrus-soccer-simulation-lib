@@ -368,9 +368,9 @@ InterceptSimulatorPlayer::canReachAfterTurnDash( const PlayerData & data,
 }
 
 bool
-PlayerIntercept::canReachAfterTurnDashCyrus( const PlayerData & data,
-                                             const Vector2D & ball_pos,
-                                             const int total_step ) const
+InterceptSimulatorPlayer::canReachAfterTurnDashCyrus( const PlayerData & data,
+                                                     const Vector2D & ball_pos,
+                                                     const int total_step ) const
 {
     /*
       TODO
@@ -385,7 +385,7 @@ PlayerIntercept::canReachAfterTurnDashCyrus( const PlayerData & data,
     int dash_cycle;
     int turn_cycle;
     int view_cycle;
-    int n_step = CutBallCalculator().cycles_to_cut_ball(&data.player_, M_world,
+    int n_step = CutBallCalculator().cycles_to_cut_ball(&data.player_,
                                                  ball_pos,
                                                  total_step,
                                                  false,

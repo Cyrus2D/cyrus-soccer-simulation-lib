@@ -15,7 +15,7 @@ using namespace rcsc;
 class CutBallCalculator {
 public:
     int cycles_to_cut_ball_with_safe_thr_dist(const AbstractPlayerObject * player,
-                                                const WorldModel & wm, const Vector2D & ball_pos,
+                                               const Vector2D & ball_pos,
                                                const int max_cycle,
                                                bool check_tackle,
                                                int & dash_cycle,
@@ -51,7 +51,7 @@ public:
         int direct_tackle_view_cycle = 0;
         int omni_kick_view_cycle = 0;
 
-        reach_cycle_kick = cycles_to_cut_ball_direct_kick(player, wm,
+        reach_cycle_kick = cycles_to_cut_ball_direct_kick(player,
                                                            ball_pos,
                                                            max_cycle,
                                                            direct_kick_dash_cycle,
@@ -62,7 +62,7 @@ public:
                                                            predict_body,
                                                            safe_dist_thr);
         if (check_tackle)
-            reach_cycle_tackle = cycles_to_cut_ball_direct_tackle(player, wm,
+            reach_cycle_tackle = cycles_to_cut_ball_direct_tackle(player,
                                                                    ball_pos,
                                                                    max_cycle,
                                                                    direct_tackle_dash_cycle,
@@ -72,7 +72,7 @@ public:
                                                                    predict_vel,
                                                                    predict_body);
         if (max_cycle <= 5 && check_omni)
-            reach_cycle_omni = cycles_to_cut_ball_omni_kick(player, wm,
+            reach_cycle_omni = cycles_to_cut_ball_omni_kick(player,
                                                              ball_pos,
                                                              max_cycle,
                                                              omni_kick_dash_cycle,
@@ -107,7 +107,7 @@ public:
         }
         return opp_reach_cycle;
     }
-    int cycles_to_cut_ball(const AbstractPlayerObject * player, const WorldModel & wm, const Vector2D & ball_pos,
+    int cycles_to_cut_ball(const AbstractPlayerObject * player, const Vector2D & ball_pos,
                             const int max_cycle,
                             bool check_tackle,
                             int & dash_cycle,
@@ -142,7 +142,7 @@ public:
         int direct_tackle_view_cycle = 0;
         int omni_kick_view_cycle = 0;
 
-        reach_cycle_kick = cycles_to_cut_ball_direct_kick(player, wm,
+        reach_cycle_kick = cycles_to_cut_ball_direct_kick(player,
                                                            ball_pos,
                                                            max_cycle,
                                                            direct_kick_dash_cycle,
@@ -153,7 +153,7 @@ public:
                                                            predict_body,
                                                            0);
         if (check_tackle)
-            reach_cycle_tackle = cycles_to_cut_ball_direct_tackle(player, wm,
+            reach_cycle_tackle = cycles_to_cut_ball_direct_tackle(player,
                                                                    ball_pos,
                                                                    max_cycle,
                                                                    direct_tackle_dash_cycle,
@@ -164,7 +164,7 @@ public:
                                                                    predict_body);
         //    		if(opp_type[opponent->unum()]!=-1){
         if (max_cycle <= 5 && check_omni)
-            reach_cycle_omni = cycles_to_cut_ball_omni_kick(player, wm,
+            reach_cycle_omni = cycles_to_cut_ball_omni_kick(player,
                                                              ball_pos,
                                                              max_cycle,
                                                              omni_kick_dash_cycle,
@@ -194,7 +194,7 @@ public:
         }
         return opp_reach_cycle;
     }
-    int cycles_to_cut_ball_direct_kick(const AbstractPlayerObject * player,const WorldModel & /*wm*/,
+    int cycles_to_cut_ball_direct_kick(const AbstractPlayerObject * player,
                                         const Vector2D & ball_pos,
                                         const int cycle,
                                         int & dash_cycle,
@@ -396,7 +396,7 @@ public:
 
         return n_turn;
     }
-    int cycles_to_cut_ball_direct_tackle(const AbstractPlayerObject * player, const WorldModel & /*wm*/,
+    int cycles_to_cut_ball_direct_tackle(const AbstractPlayerObject * player,
                                           const Vector2D & ball_pos,
                                           const int cycle,
                                           int & dash_cycle,
@@ -553,7 +553,7 @@ public:
         return n_turn;
 
     }
-    int cycles_to_cut_ball_omni_kick(const AbstractPlayerObject * player, const WorldModel & /*wm*/,
+    int cycles_to_cut_ball_omni_kick(const AbstractPlayerObject * player,
                                       const Vector2D & ball_pos,
                                       const int cycle,
                                       int & dash_cycle,

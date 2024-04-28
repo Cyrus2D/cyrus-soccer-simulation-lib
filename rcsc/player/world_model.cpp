@@ -6369,7 +6369,7 @@ WorldModel::localizePlayersCyrus( const VisualSensor & see )
             {
                 Localization::PlayerT seen_player;
                 // localize
-                if ( ! M_localize->localizePlayer( *it_seen_opp,
+                if ( ! M_localize->localizePlayer( *this, *it_seen_opp,
                                                    MY_FACE, MY_FACE_ERR, MYPOS, MYVEL,
                                                    &seen_player ) )
                 {
@@ -6478,7 +6478,7 @@ WorldModel::localizePlayersCyrus( const VisualSensor & see )
             {
                 Localization::PlayerT seen_player;
                 // localize
-                if ( ! M_localize->localizePlayer( *it_seen_u_opp,
+                if ( ! M_localize->localizePlayer( *this, *it_seen_u_opp,
                                                    MY_FACE, MY_FACE_ERR, MYPOS, MYVEL,
                                                    &seen_player ) )
                 {
@@ -6610,7 +6610,7 @@ WorldModel::localizePlayersCyrus( const VisualSensor & see )
               ++it_seen_opp )
         {
             Localization::PlayerT seen_player;
-            if ( ! M_localize->localizePlayer( *it_seen_opp,
+            if ( ! M_localize->localizePlayer( *this, *it_seen_opp,
                                                MY_FACE, MY_FACE_ERR, MYPOS, MYVEL,
                                                &seen_player ) )
             {
@@ -6634,7 +6634,7 @@ WorldModel::localizePlayersCyrus( const VisualSensor & see )
         {
             Localization::PlayerT seen_player;
             // localize
-            if ( ! M_localize->localizePlayer( *it_seen_u_opp,
+            if ( ! M_localize->localizePlayer( *this, *it_seen_u_opp,
                                                MY_FACE, MY_FACE_ERR, MYPOS, MYVEL,
                                                &seen_player ) )
             {
@@ -6673,7 +6673,7 @@ WorldModel::localizePlayersCyrus( const VisualSensor & see )
             {
                 Localization::PlayerT player;
                 // localize
-                if ( ! M_localize->localizePlayer( *it_seen_tm,
+                if ( ! M_localize->localizePlayer( *this, *it_seen_tm,
                                                    MY_FACE, MY_FACE_ERR, MYPOS, MYVEL,
                                                    &player ) )
                 {
@@ -6782,7 +6782,7 @@ WorldModel::localizePlayersCyrus( const VisualSensor & see )
             {
                 Localization::PlayerT player;
                 // localize
-                if ( ! M_localize->localizePlayer( *it_seen_u_tm,
+                if ( ! M_localize->localizePlayer( *this, *it_seen_u_tm,
                                                    MY_FACE, MY_FACE_ERR, MYPOS, MYVEL,
                                                    &player ) )
                 {
@@ -6915,7 +6915,7 @@ WorldModel::localizePlayersCyrus( const VisualSensor & see )
               ++it_seen_opp )
         {
             Localization::PlayerT seen_player;
-            if ( ! M_localize->localizePlayer( *it_seen_opp,
+            if ( ! M_localize->localizePlayer( *this, *it_seen_opp,
                                                MY_FACE, MY_FACE_ERR, MYPOS, MYVEL,
                                                &seen_player ) )
             {
@@ -6939,7 +6939,7 @@ WorldModel::localizePlayersCyrus( const VisualSensor & see )
         {
             Localization::PlayerT seen_player;
             // localize
-            if ( ! M_localize->localizePlayer( *it_seen_u_tm,
+            if ( ! M_localize->localizePlayer( *this, *it_seen_u_tm,
                                                MY_FACE, MY_FACE_ERR, MYPOS, MYVEL,
                                                &seen_player ) )
             {
@@ -6970,7 +6970,7 @@ WorldModel::localizePlayersCyrus( const VisualSensor & see )
         {
             Localization::PlayerT player;
             // localize
-            if ( ! M_localize->localizePlayer( *it_seen_unknown,
+            if ( ! M_localize->localizePlayer( *this, *it_seen_unknown,
                                                MY_FACE, MY_FACE_ERR, MYPOS, MYVEL,
                                                &player ) )
             {
