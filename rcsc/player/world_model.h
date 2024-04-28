@@ -37,7 +37,8 @@
 #include <rcsc/player/player_object.h>
 #include <rcsc/player/view_area.h>
 #include <rcsc/player/view_grid_map.h>
-#include <rcsc/player/intercept_table.h>
+//#include <rcsc/player/intercept_table.h>
+#include <rcsc/player/intercept_table_cyrus.h>
 
 #include <rcsc/time/timer.h>
 #include <rcsc/geom/vector_2d.h>
@@ -86,7 +87,7 @@ private:
     double M_client_version;
 
     std::shared_ptr< Localization > M_localize; //!< localization module
-    InterceptTable M_intercept_table; //!< interception info table
+    InterceptTableCyrus M_intercept_table; //!< interception info table
     std::shared_ptr< AudioMemory > M_audio_memory; //!< heard deqinfo memory
     PenaltyKickState * M_penalty_kick_state; //!< penalty kick mode status
 
@@ -257,8 +258,9 @@ public:
       \brief get intercept table
       \return const pointer to the intercept table instance
     */
-    const InterceptTable & interceptTable() const
+    const InterceptTableCyrus & interceptTable() const
     {
+        // TODO Create Interface
         return M_intercept_table;
     }
 

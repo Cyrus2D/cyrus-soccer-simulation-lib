@@ -8,9 +8,11 @@ add_library(rcsc_player OBJECT
   debug_client.cpp
   fullstate_sensor.cpp
   intercept.cpp
+  player_intercept_cyrus.cpp
   intercept_simulator_player.cpp
   intercept_simulator_self_v17.cpp
   intercept_table.cpp
+  intercept_table_cyrus.cpp
   localization_default.cpp
   object_table.cpp
   penalty_kick_state.cpp
@@ -49,9 +51,11 @@ install(FILES
   fullstate_sensor.h
   intercept.h
   intercept_simulator_player.h
+  player_intercept_cyrus.h
   intercept_simulator_self.h
   intercept_simulator_self_v17.h
   intercept_table.h
+  intercept_table_cyrus.h
   localization.h
   localization_default.h
   object_table.h
