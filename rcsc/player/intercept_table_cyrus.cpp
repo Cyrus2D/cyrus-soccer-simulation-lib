@@ -398,8 +398,8 @@ InterceptTableCyrus::predictSelf(const WorldModel & wm)
     std::shared_ptr< InterceptSimulatorSelf > sim( new SelfInterceptV13() );
     sim->simulate( wm, max_step, M_self_results );
 
-    SelfInterceptTackle predictor_tackle( M_world, M_ball_cache );
-    predictor_tackle.predict( max_step, M_self_results_tackle );
+    std::shared_ptr< InterceptSimulatorSelf > sim_tackle( new SelfInterceptTackle() );
+    sim->simulate( wm, max_step, M_self_results_tackle );
     //    SelfInterceptSimulator sim;
     //    sim.simulate( M_world, max_step, M_self_results );
 
