@@ -51,7 +51,7 @@ class WorldModel;
   \brief interception info holder for all players
 */
 class InterceptTable {
-private:
+protected:
 
     //! last updated time
     GameTime M_update_time;
@@ -83,7 +83,6 @@ private:
 
     //! interception info cache for smart interception
     std::vector< Intercept > M_self_results;
-    std::vector< Intercept > M_self_results_tackle;
 
     //! all players' intercept step container. key: pointer, value: step value
     std::map< const AbstractPlayerObject *, int > M_player_map;
@@ -219,7 +218,7 @@ public:
           return M_player_map;
       }
 
-private:
+  protected:
     /*!
       \brief clear all cached data
     */
@@ -229,19 +228,19 @@ private:
       \brief predict self interception
       \param wm const reference to the world model
     */
-    void predictSelf( const WorldModel & wm );
+    virtual void predictSelf( const WorldModel & wm );
 
     /*!
       \predict teammate interception
       \param wm const reference to the world model
     */
-    void predictTeammate( const WorldModel & wm );
+    virtual void predictTeammate( const WorldModel & wm );
 
     /*!
       \predict opponent interception
       \param wm const reference to the world model
     */
-    void predictOpponent( const WorldModel & wm );
+    virtual void predictOpponent( const WorldModel & wm );
 };
 
 }

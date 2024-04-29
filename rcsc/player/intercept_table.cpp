@@ -65,7 +65,6 @@ InterceptTable::InterceptTable()
     : M_update_time( 0, 0 )
 {
     M_self_results.reserve( ( MAX_STEP + 1 ) * 2 );
-    M_self_results_tackle.reserve( ( MAX_STEP + 1 ) * 2 );
 
     clear();
 }

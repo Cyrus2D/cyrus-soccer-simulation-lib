@@ -394,7 +394,7 @@ const double WorldModel::DIR_STEP = 360.0 / static_cast< double >( DIR_CONF_DIVS
 WorldModel::WorldModel()
     : M_client_version( 8 ),
       M_localize(),
-      M_intercept_table(*this), // TODO
+      M_intercept_table(), // TODO
       M_audio_memory( new AudioMemory() ),
       M_penalty_kick_state( new PenaltyKickState() ),
       M_our_side( NEUTRAL ),

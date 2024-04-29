@@ -60,11 +60,9 @@ const int MAX_STEP = 50;
 /*!
 
 */
-InterceptTableCyrus::InterceptTableCyrus( const WorldModel & wm )
-    : M_update_time( 0, 0 )
+InterceptTableCyrus::InterceptTableCyrus( ) : InterceptTable()
 {
-    M_self_results.reserve( ( MAX_STEP + 1 ) * 2 );
-
+    M_self_results_tackle.reserve( ( MAX_STEP + 1 ) * 2 );
     clear();
 }
 
@@ -75,250 +73,9 @@ InterceptTableCyrus::InterceptTableCyrus( const WorldModel & wm )
 void
 InterceptTableCyrus::clear()
 {
-    M_self_step = 1000;
-    M_self_exhaust_step = 1000;
+    InterceptTable::clear();
     M_self_step_tackle = 1000;
-    M_self_exhaust_step = 1000;
-
-    M_teammate_step = 1000;
-    M_second_teammate_step = 1000;
-    M_our_goalie_step = 1000;
-    M_opponent_step = 1000;
-    M_second_opponent_step = 1000;
-
-    M_first_teammate = nullptr;
-    M_second_teammate = nullptr;
-    M_first_opponent = nullptr;
-    M_second_opponent = nullptr;
-
-    M_self_results.clear();
     M_self_results_tackle.clear();
-    M_player_map.clear();
-}
-
-/*-------------------------------------------------------------------*/
-/*!
-
-*/
-void
-InterceptTableCyrus::update(const WorldModel & wm)
-{
-    if ( wm.time() == M_update_time )
-    {
-        return;
-    }
-    M_update_time = wm.time();
-
-#ifdef DEBUG_PRINT
-    dlog.addText( Logger::INTERCEPT,
-                  __FILE__" (update)" );
-    Timer timer;
-#endif
-
-    // clear all data
-    this->clear();
-
-    // playmode check
-    if ( wm.gameMode().type() == GameMode::TimeOver
-         || wm.gameMode().type() == GameMode::BeforeKickOff )
-    {
-        return;
-    }
-
-    if ( ! wm.self().posValid()
-         || ! wm.ball().posValid() )
-    {
-        dlog.addText( Logger::INTERCEPT,
-                      __FILE__" (update) Invalid self or ball pos" );
-        return;
-    }
-
-#ifdef DEBUG
-    if ( wm.self().isKickable()
-         || wm.kickableTeammate()
-         || wm.kickableOpponent() )
-    {
-        dlog.addText( Logger::INTERCEPT,
-                      __FILE__" (update) Already exist kickable player" );
-    }
-#endif
-
-#ifdef DEBUG
-    dlog.addText( Logger::INTERCEPT,
-                  "==========Intercept Predict Self==========" );
-#endif
-
-    predictSelf(wm);
-
-#ifdef DEBUG
-    dlog.addText( Logger::INTERCEPT,
-                  "==========Intercept Predict Opponent==========" );
-#endif
-
-    predictOpponent(wm);
-
-#ifdef DEBUG
-    dlog.addText( Logger::INTERCEPT,
-                  "==========Intercept Predict Teammate==========" );
-#endif
-
-    predictTeammate(wm);
-
-    dlog.addText( Logger::INTERCEPT,
-                  "<-----Intercept Self reach step = %d. exhaust reach step = %d ",
-                  M_self_step,
-                  M_self_exhaust_step );
-    if ( M_first_teammate )
-    {
-        dlog.addText( Logger::INTERCEPT,
-                      "<-----Intercept Teammate  fastest reach step = %d."
-                      " teammate %d (%.1f %.1f)",
-                      M_teammate_step,
-                      M_first_teammate->unum(),
-                      M_first_teammate->pos().x,
-                      M_first_teammate->pos().y );
-
-    }
-
-    if ( M_second_teammate )
-    {
-        dlog.addText( Logger::INTERCEPT,
-                      "<-----Intercept Teammate  2nd     reach step = %d."
-                      " teammate %d (%.1f %.1f)",
-                      M_second_teammate_step,
-                      M_second_teammate->unum(),
-                      M_second_teammate->pos().x,
-                      M_second_teammate->pos().y );
-    }
-
-    if ( M_first_opponent )
-    {
-        dlog.addText( Logger::INTERCEPT,
-                      "<-----Intercept Opponent  fastest reach step = %d."
-                      " opponent %d (%.1f %.1f)",
-                      M_opponent_step,
-                      M_first_opponent->unum(),
-                      M_first_opponent->pos().x,
-                      M_first_opponent->pos().y );
-    }
-
-    if ( M_second_opponent )
-    {
-        dlog.addText( Logger::INTERCEPT,
-                      "<-----Intercept Opponent  2nd     reach step = %d."
-                      " opponent %d (%.1f %.1f)",
-                      M_second_opponent_step,
-                      M_second_opponent->unum(),
-                      M_second_opponent->pos().x,
-                      M_second_opponent->pos().y );
-    }
-
-#ifdef DEBUG_PRINT
-    dlog.addText( Logger::INTERCEPT,
-                  __FILE__":(update) elapsed %.3f [ms]", timer.elapsedReal() );
-#endif
-}
-
-/*-------------------------------------------------------------------*/
-/*!
-
-*/
-void
-InterceptTableCyrus::hearTeammate( const WorldModel & wm, const int unum,
-                              const int step )
-{
-    if ( M_first_teammate
-         && step >= M_teammate_step )
-    {
-        return;
-    }
-
-    const PlayerObject * target = nullptr;
-    for ( const PlayerObject * t : wm.teammates() )
-    {
-        if ( t->unum() == unum )
-        {
-            target = t;
-            break;
-        }
-    }
-
-    if ( target )
-    {
-        M_first_teammate = target;
-        M_teammate_step = step;
-
-        M_player_map[ target ] = step;
-
-        dlog.addText( Logger::INTERCEPT,
-                      "<----- Hear Intercept Teammate  fastest reach step = %d."
-                      " teammate %d (%.1f %.1f)",
-                      M_teammate_step,
-                      M_first_teammate->unum(),
-                      M_first_teammate->pos().x,
-                      M_first_teammate->pos().y );
-    }
-}
-
-/*-------------------------------------------------------------------*/
-/*!
-
-*/
-void
-InterceptTableCyrus::hearOpponent( const WorldModel & wm, const int unum,
-                              const int step )
-{
-    if ( M_first_opponent )
-    {
-        if ( step >= M_opponent_step )
-        {
-            dlog.addText( Logger::INTERCEPT,
-                          "<----- Hear Intercept Opponent. no update."
-                          " exist faster reach step %d >= %d",
-                          step, M_opponent_step );
-            return;
-        }
-
-        if ( M_first_opponent->unum() == unum
-             && M_first_opponent->posCount() == 0 )
-        {
-            dlog.addText( Logger::INTERCEPT,
-                          "<----- Hear Intercept Opponent . no update."
-                          " opponent %d (%.1f %.1f) is seen",
-                          M_first_opponent->unum(),
-                          M_first_opponent->pos().x,
-                          M_first_opponent->pos().y );
-            return;
-        }
-    }
-
-    const PlayerObject * p = nullptr;
-
-    for ( const PlayerObject * i : wm.opponents() )
-    {
-        if ( i->unum() == unum )
-        {
-            p = i;
-            break;
-        }
-    }
-
-
-    if ( p )
-    {
-        M_first_opponent = p;
-        M_opponent_step = step;
-
-        M_player_map[ p ] = step;
-
-        dlog.addText( Logger::INTERCEPT,
-                      "<----- Hear Intercept Opponent  fastest reach step = %d."
-                      " opponent %d (%.1f %.1f)",
-                      M_opponent_step,
-                      M_first_opponent->unum(),
-                      M_first_opponent->pos().x,
-                      M_first_opponent->pos().y );
-    }
 }
 
 /*-------------------------------------------------------------------*/
@@ -495,13 +252,12 @@ InterceptTableCyrus::predictTeammate(const WorldModel & wm)
         }
 
         int step = sim.simulate( wm, *t, false );
-        int goalie_step = 1000;
         if ( t->goalie() )
         {
-            goalie_step = sim.simulate( wm, *t, true );
-            if ( step > goalie_step )
+            M_our_goalie_step = sim.simulate( wm, *t, true );
+            if ( step > M_our_goalie_step )
             {
-                step = goalie_step;
+                step = M_our_goalie_step;
             }
         }
 
@@ -510,11 +266,6 @@ InterceptTableCyrus::predictTeammate(const WorldModel & wm)
                       t->unum(),
                       t->pos().x, t->pos().y,
                       step );
-
-        if ( t->goalie() )
-        {
-            M_our_goalie_step = goalie_step;
-        }
 
         if ( step < second_min_step )
         {
