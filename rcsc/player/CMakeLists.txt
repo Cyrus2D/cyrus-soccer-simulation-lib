@@ -7,19 +7,22 @@ add_library(rcsc_player OBJECT
   body_sensor.cpp
   debug_client.cpp
   fullstate_sensor.cpp
+  intercept.cpp
+  player_intercept_cyrus.cpp
+  intercept_simulator_player.cpp
+  intercept_simulator_self_v17.cpp
   intercept_table.cpp
+  intercept_table_cyrus.cpp
   localization_default.cpp
   object_table.cpp
   penalty_kick_state.cpp
   player_command.cpp
   player_agent.cpp
   player_config.cpp
-  player_intercept.cpp
   player_object.cpp
   player_state.cpp
   say_message_builder.cpp
   see_state.cpp
-  self_intercept_simulator.cpp
   self_object.cpp
   soccer_action.cpp
   view_grid_map.cpp
@@ -32,8 +35,6 @@ add_library(rcsc_player OBJECT
   )
 
 target_include_directories(rcsc_player
-  PUBLIC
-  ${Boost_INCLUDE_DIRS}
   PRIVATE
   ${PROJECT_SOURCE_DIR}
   ${PROJECT_BINARY_DIR}
@@ -48,7 +49,13 @@ install(FILES
   debug_client.h
   free_message.h
   fullstate_sensor.h
+  intercept.h
+  intercept_simulator_player.h
+  player_intercept_cyrus.h
+  intercept_simulator_self.h
+  intercept_simulator_self_v17.h
   intercept_table.h
+  intercept_table_cyrus.h
   localization.h
   localization_default.h
   object_table.h
@@ -57,13 +64,11 @@ install(FILES
   player_agent.h
   player_config.h
   player_evaluator.h
-  player_intercept.h
   player_object.h
   player_predicate.h
   player_state.h
   say_message_builder.h
   see_state.h
-  self_intercept_simulator.h
   self_object.h
   soccer_action.h
   soccer_intention.h
@@ -75,5 +80,6 @@ install(FILES
   stamina_with_pointto.h
   self_intercept_v13_cyrus.h
   self_intercept_tackle.h
+  cut_ball_calculator.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rcsc/player
   )

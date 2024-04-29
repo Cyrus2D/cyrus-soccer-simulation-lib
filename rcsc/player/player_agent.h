@@ -57,6 +57,7 @@ class SeeState;
 class SoccerIntention;
 class NeckAction;
 class ViewAction;
+class FocusAction;
 class VisualSensor;
 
 /*!
@@ -142,10 +143,6 @@ public:
           return M_worldmodel;
       }
 
-    WorldModel & world_not_const()
-      {
-          return M_worldmodel;
-      }
     /*!
       \brief get fullstate worldmodel
       \return const reference to fullstate world model instance
@@ -271,6 +268,14 @@ public:
     */
     bool doChangeView( const ViewWidth & width );
 
+    /*!
+      \brief register change_focus command
+      \param moment_dist distance added to the current focus point
+      \param moment_dir direction added to the current focus point
+     */
+    bool doChangeFocus( const double moment_dist,
+                        const AngleDeg & moment_dir );
+
     /*
       brief register say command.
       param msg message string
@@ -328,6 +333,13 @@ public:
     void setViewAction( ViewAction * act );
 
     /*!
+      \brief reserve change_focus action
+      \param act pointer to the action. must be a dynamically allocated object.
+    */
+    void setFocusAction( FocusAction * act );
+
+
+    /*!
       \brief add say message to the action effector
       \param message pointer to the dynamically allocated object.
      */
@@ -370,8 +382,6 @@ private:
       \brief main action decision.
     */
     void action();
-
-    virtual void update_player_by_denoiser();
 protected:
 
     /*!
@@ -549,7 +559,12 @@ protected:
      */
     void removeFreeformMessageParser( const std::string & type );
 
-
+public:
+    WorldModel & world_not_const()
+    {
+        return M_worldmodel;
+    }
+    virtual void update_player_by_denoiser();
 };
 
 }

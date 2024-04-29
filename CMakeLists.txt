@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(libcyrus VERSION 2020.08)
+project(libcyrus VERSION 2023)
 
 set(LIBRCSC_SOVERSION 16) # protocol version
 set(LIBRCSC_BUILDVERSION ${LIBRCSC_SOVERSION}.0.0)
@@ -10,7 +10,7 @@ if(CMAKE_VERSION VERSION_LESS "3.7.0")
 endif()
 
 # compliler options
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -56,7 +56,7 @@ check_cxx_symbol_exists(select sys/select.h HAVE_SELECT)
 check_cxx_symbol_exists(socket sys/socket.h HAVE_SOCKET)
 
 # boost
-find_package(Boost 1.36.0 COMPONENTS system REQUIRED)
+find_package(Boost 1.41.0 COMPONENTS system REQUIRED)
 if(NOT Boost_FOUND)
   message(FATAL_ERROR "Boost not found!")
 endif()

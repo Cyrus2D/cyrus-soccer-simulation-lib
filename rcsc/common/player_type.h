@@ -65,6 +65,18 @@ private:
     double M_kick_power_rate; //!< kick power rate
     double M_foul_detect_probability; //!< foul detect probability
     double M_catchable_area_l_stretch; //!< catch area length stretch factor
+    // v18
+    double M_unum_far_length; //!< Distance where the uniform number becomes ambiguous in see message
+    double M_unum_too_far_length; //!< Distance where the uniform number becomes completely unobservable
+    double M_team_far_length; //!< Distance where the team information becomes ambiguous in see message
+    double M_team_too_far_length; //!< Distance where the team information becomes completely unobservable
+    double M_player_max_observation_length; //!< Maximum distance where players can be observed
+    double M_ball_vel_far_length; //!< Distance where the ball relatie velocity becomes ambiguous in see message
+    double M_ball_vel_too_far_length; //!< Distance where the ball relative velocityr becomes completely unobservable
+    double M_ball_max_observation_length; //!< Maximum distance where the ball can be observed
+    double M_flag_chg_far_length; //!< Distance where the flag relative velocity becomes ambiguous in see message
+    double M_flag_chg_too_far_length;//!< Distance where the flag relative velocityr becomes completely unobservable
+    double M_flag_max_observation_length; //!< Maximum distance where the flag can be observed
 
     //
     // additional parameters
@@ -76,19 +88,16 @@ private:
 
     // if player's dprate & effort is not enough,
     // player never reach player_speed_max
-//    double M_real_speed_max;
-    std::vector<double> M_real_speed_max;
+    double M_real_speed_max;
 
     double M_player_speed_max2; // squared value
-//    double M_real_speed_max2;   // squared value
-    std::vector<double> M_real_speed_max2;
+    double M_real_speed_max2;   // squared value
 
     //! dash cycles to reach max speed
     int M_cycles_to_reach_max_speed;
 
     //! distance table by continuous dashes from the velocity 0.
-//    std::vector< double > M_dash_distance_table;
-    std::vector< std::vector<double> > M_dash_distance_table;
+    std::vector< double > M_dash_distance_table;
 
     // stamina cconsumption table by continuous dashes
     //std::vector< double > M_stamina_table;
@@ -303,6 +312,105 @@ public:
           return M_catchable_area_l_stretch;
       }
 
+    /*!
+      \brief get the player_type parameter
+      \return player_type parameter
+     */
+    double unumFarLength() const
+      {
+          return M_unum_far_length;
+      }
+
+    /*!
+      \brief get the player_type parameter
+      \return player_type parameter
+     */
+    double unumTooFarLength() const
+      {
+          return M_unum_too_far_length;
+      }
+
+    /*!
+      \brief get the player_type parameter
+      \return player_type parameter
+     */
+    double teamFarLength() const
+      {
+          return M_team_far_length;
+      }
+
+    /*!
+      \brief get the player_type parameter
+      \return player_type parameter
+     */
+    double teamTooFarLength() const
+      {
+          return M_team_too_far_length;
+      }
+
+    /*!
+      \brief get the player_type parameter
+      \return player_type parameter
+     */
+    double playerMaxObservationLength() const
+      {
+          return M_player_max_observation_length;
+      }
+
+    /*!
+      \brief get the player_type parameter
+      \return player_type parameter
+     */
+    double ballVelFarLength() const
+      {
+          return M_ball_vel_far_length;
+      }
+
+    /*!
+      \brief get the player_type parameter
+      \return player_type parameter
+     */
+    double ballVelTooFarLength() const
+      {
+          return M_ball_vel_too_far_length;
+      }
+
+    /*!
+      \brief get the player_type parameter
+      \return player_type parameter
+     */
+    double ballMaxObservationLength() const
+      {
+          return M_ball_max_observation_length;
+      }
+
+    /*!
+      \brief get the player_type parameter
+      \return player_type parameter
+     */
+    double flagChgFarLength() const
+      {
+          return M_flag_chg_far_length;
+      }
+
+    /*!
+      \brief get the player_type parameter
+      \return player_type parameter
+     */
+    double flagChgTooFarLength() const
+      {
+          return M_flag_chg_too_far_length;
+      }
+
+    /*!
+      \brief get the player_type parameter
+      \return player_type parameter
+     */
+    double flagMaxObservationLength() const
+      {
+          return M_flag_max_observation_length;
+      }
+
     ////////////////////////////////////////////////
     // additional parameters
 
@@ -377,18 +485,9 @@ public:
       \brief get the reachable speed max
       \return reachable speed max
      */
-//    double realSpeedMax() const
-//      {
-//          return M_real_speed_max;
-//      }
-
-    double realSpeedMax(double dash_dir=-360.0) const
+    double realSpeedMax() const
       {
-          AngleDeg dash_angle = (dash_dir == -360.0 ? AngleDeg(0) : AngleDeg(dash_dir));
-          double dash_dir_deg = dash_angle.abs();
-          dash_dir_deg /= 10.0;
-          int dash_dir_step = static_cast<int>(std::round(dash_dir_deg));
-          return M_real_speed_max.at(dash_dir_step);
+          return M_real_speed_max;
       }
 
     /*!
@@ -400,39 +499,24 @@ public:
           return M_player_speed_max2;
       }
 
-
     /*!
       \brief get the squared real speed max
       \return squared real speed max
      */
-//    double realSpeedMax2() const
-//      {
-//          return M_real_speed_max2;
-//      }
-
-    double realSpeedMax2(double dash_dir=-360.0) const
+    double realSpeedMax2() const
       {
-          AngleDeg dash_angle = (dash_dir == -360.0 ? AngleDeg(0) : AngleDeg(dash_dir));
-          double dash_dir_deg = dash_angle.abs();
-          dash_dir_deg /= 10.0;
-          int dash_dir_step = static_cast<int>(std::round(dash_dir_deg));
-          return M_real_speed_max2.at(dash_dir_step);
+          return M_real_speed_max2;
       }
 
     /*!
       \brief get dash reachable distance table
       \return const reference to the distance table container
      */
-//    const std::vector< double > & dashDistanceTable() const
-//      {
-//          return M_dash_distance_table;
-//      }
-
-    const
-    std::vector< std::vector<double> > & dashDistanceTable() const
+    const std::vector< double > & dashDistanceTable() const
       {
           return M_dash_distance_table;
       }
+
     ////////////////////////////////////////////////
     /*!
       \brief calculate enable cycles to keep to dash using max power
@@ -486,9 +570,9 @@ public:
       \param dash_dist distance to reach
       \return estimated cycles to reach
     */
-//    int cyclesToReachDistance( const double & dash_dist ) const;
-    int cyclesToReachDistance( const double & dash_dist, double dash_dir=-360.0 ) const;
-    double reachDistance( const int & cycle, double dash_dir=-360.0 ) const;
+    int cyclesToReachDistance( const double & dash_dist ) const;
+
+    double getMovableDistance( const size_t step ) const;
     ////////////////////////////////////////////////
     /*!
       \brief check if this type player can over player_speed_max
@@ -675,6 +759,37 @@ public:
       \return reference to the output stream
      */
     std::ostream & print( std::ostream & os ) const;
+
+
+    // cyrus
+    std::vector<double> M_real_speed_max_on_dash_dir;
+    std::vector<double> M_real_speed_max2_on_dash_dir;
+    std::vector< std::vector<double> > M_dash_distance_table_on_dash_dir;
+
+    void initAdditionalParamsCyrus();
+    double realSpeedMaxOnDashDir(double dash_dir=-360.0) const
+    {
+        AngleDeg dash_angle = (dash_dir == -360.0 ? AngleDeg(0) : AngleDeg(dash_dir));
+        double dash_dir_deg = dash_angle.abs();
+        dash_dir_deg /= 10.0;
+        int dash_dir_step = static_cast<int>(std::round(dash_dir_deg));
+        return M_real_speed_max_on_dash_dir.at(dash_dir_step);
+    }
+    double realSpeedMax2OnDashDir(double dash_dir=-360.0) const
+    {
+        AngleDeg dash_angle = (dash_dir == -360.0 ? AngleDeg(0) : AngleDeg(dash_dir));
+        double dash_dir_deg = dash_angle.abs();
+        dash_dir_deg /= 10.0;
+        int dash_dir_step = static_cast<int>(std::round(dash_dir_deg));
+        return M_real_speed_max2_on_dash_dir.at(dash_dir_step);
+    }
+    const
+        std::vector< std::vector<double> > & dashDistanceTableOnDashDir() const
+    {
+        return M_dash_distance_table_on_dash_dir;
+    }
+    int cyclesToReachDistanceOnDashDir( const double & dash_dist, double dash_dir ) const;
+    double reachDistanceOnDashDir( const int & cycle, double dash_dir ) const;
 
     static
     PlayerType create( const int seed );

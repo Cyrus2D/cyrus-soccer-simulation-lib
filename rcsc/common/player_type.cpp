@@ -353,6 +353,21 @@ PlayerType::setDefault()
     M_kick_power_rate = SP.kickPowerRate();
     M_foul_detect_probability = SP.foulDetectProbability();
     M_catchable_area_l_stretch = 1.0;
+
+    const double maximum_dist_in_pitch = std::sqrt( std::pow( ServerParam::DEFAULT_PITCH_LENGTH, 2 )
+                                                    + std::pow( ServerParam::DEFAULT_PITCH_WIDTH, 2 ) );
+    // v18
+    M_unum_far_length = 20.0;
+    M_unum_too_far_length = 40.0;
+    M_team_far_length = maximum_dist_in_pitch;
+    M_team_too_far_length = maximum_dist_in_pitch;
+    M_player_max_observation_length = maximum_dist_in_pitch;
+    M_ball_vel_far_length = 20.0;
+    M_ball_vel_too_far_length = 40.0;
+    M_ball_max_observation_length = maximum_dist_in_pitch;
+    M_flag_chg_far_length = 20.0;
+    M_flag_chg_too_far_length = 40.0;
+    M_flag_max_observation_length = maximum_dist_in_pitch;
 }
 
 /*-------------------------------------------------------------------*/
@@ -463,6 +478,50 @@ PlayerType::parseV8( const char * msg )
         {
             M_catchable_area_l_stretch = val;
         }
+        else if ( ! std::strcmp( name, "unum_far_length" ) )
+        {
+            M_unum_far_length = val;
+        }
+        else if ( ! std::strcmp( name, "unum_too_far_length" ) )
+        {
+            M_unum_too_far_length = val;
+        }
+        else if ( ! std::strcmp( name, "team_far_length" ) )
+        {
+            M_team_far_length = val;
+        }
+        else if ( ! std::strcmp( name, "team_too_far_length" ) )
+        {
+            M_team_too_far_length = val;
+        }
+        else if ( ! std::strcmp( name, "player_max_observation_length" ) )
+        {
+            M_player_max_observation_length = val;
+        }
+        else if ( ! std::strcmp( name, "ball_vel_far_length" ) )
+        {
+            M_ball_vel_far_length = val;
+        }
+        else if ( ! std::strcmp( name, "ball_vel_too_far_length" ) )
+        {
+            M_ball_vel_too_far_length = val;
+        }
+        else if ( ! std::strcmp( name, "ball_max_observation_length" ) )
+        {
+            M_ball_max_observation_length = val;
+        }
+        else if ( ! std::strcmp( name, "flag_chg_far_length" ) )
+        {
+            M_flag_chg_far_length = val;
+        }
+        else if ( ! std::strcmp( name, "flag_chg_too_far_length" ) )
+        {
+            M_flag_chg_too_far_length = val;
+        }
+        else if ( ! std::strcmp( name, "flag_max_observation_length" ) )
+        {
+            M_flag_max_observation_length = val;
+        }
         else
         {
             std::cerr << __FILE__ << ":(PlayerType::parseV8) "
@@ -550,119 +609,61 @@ PlayerType::initAdditionalParams()
     double accel = SP.maxDashPower() * dashPowerRate() * effortMax();
 
     // see also soccer_math.h
-//    M_real_speed_max = accel / ( 1.0 - playerDecay() ); // sum inf geom series
-//    if ( M_real_speed_max > playerSpeedMax() )
-//    {
-//        M_real_speed_max = playerSpeedMax();
-//    }
+    M_real_speed_max = accel / ( 1.0 - playerDecay() ); // sum inf geom series
+    if ( M_real_speed_max > playerSpeedMax() )
+    {
+        M_real_speed_max = playerSpeedMax();
+    }
 
     ///////////////////////////////////////////////////////////////////
     M_player_speed_max2 = playerSpeedMax() * playerSpeedMax();
-//    M_real_speed_max2 = realSpeedMax() * realSpeedMax();
+    M_real_speed_max2 = realSpeedMax() * realSpeedMax();
 
     /////////////////////////////////////////////////////////////////////
-//    double speed = 0.0;
-//    double dash_power = SP.maxDashPower();
-//    StaminaModel stamina_model;
-//    stamina_model.init( *this );
+    double speed = 0.0;
+    double dash_power = SP.maxDashPower();
+    StaminaModel stamina_model;
+    stamina_model.init( *this );
 
-//    double reach_dist = 0.0;
+    double reach_dist = 0.0;
 
     M_cycles_to_reach_max_speed = -1;
 
-//    M_dash_distance_table.clear();
-//    M_dash_distance_table.reserve( 50 );
-
     M_dash_distance_table.clear();
-    M_dash_distance_table.reserve( 19 );
-    M_real_speed_max.clear();
-    M_real_speed_max.reserve(19);
-    M_real_speed_max2.clear();
-    M_real_speed_max2.reserve(19);
+    M_dash_distance_table.reserve( 50 );
 
-//    for ( int counter = 1; counter <= 50; ++counter )
-//    {
-//        if ( speed + accel > playerSpeedMax() )
-//        {
-//            accel = playerSpeedMax() - speed;
-//            dash_power = std::min( SP.maxDashPower(),
-//                                   accel / ( dashPowerRate() * stamina_model.effort() ) );
-//        }
-//
-//        speed += accel;
-//
-//        reach_dist += speed;
-//
-//        M_dash_distance_table.push_back( reach_dist );
-//
-//        if ( M_cycles_to_reach_max_speed < 0
-//             && speed >= realSpeedMax() - 0.01 )
-//        {
-//            M_cycles_to_reach_max_speed = counter;
-//        }
-//
-//        speed *= playerDecay();
-//
-//        stamina_model.simulateDash( *this, dash_power );
-//
-//        if ( stamina_model.stamina() <= 0.0 )
-//        {
-//            break;
-//        }
-//    }
-
-    for (int angle_step = 0; angle_step <= 18; angle_step += 1 ){
-
-        double angle = static_cast<double>(angle_step) * 10.0;
-        double speed = 0.0;
-        double dash_power = SP.maxDashPower();
-        StaminaModel stamina_model;
-        stamina_model.init( *this );
-        double reach_dist = 0.0;
-	    accel = SP.maxDashPower() * effortMax() * ServerParam::i().dashDirRate( angle ) * dashPowerRate();
-        // see also soccer_math.h
-        M_real_speed_max.push_back(accel / ( 1.0 - playerDecay() )); // sum inf geom series
-        if ( M_real_speed_max.back() > playerSpeedMax() )
+    for ( int counter = 1; counter <= 50; ++counter )
+    {
+        if ( speed + accel > playerSpeedMax() )
         {
-            M_real_speed_max.back() = playerSpeedMax();
+            accel = playerSpeedMax() - speed;
+            dash_power = std::min( SP.maxDashPower(),
+                                   accel / ( dashPowerRate() * stamina_model.effort() ) );
         }
 
-        M_real_speed_max2.push_back(realSpeedMax(angle) * realSpeedMax(angle));
+        speed += accel;
 
-        M_dash_distance_table.emplace_back(std::vector<double>{});
-        for ( int counter = 1; counter <= 50; ++counter )
+        reach_dist += speed;
+
+        M_dash_distance_table.push_back( reach_dist );
+
+        if ( M_cycles_to_reach_max_speed < 0
+             && speed >= realSpeedMax() - 0.01 )
         {
-            if ( speed + accel > realSpeedMax(angle) )
-            {
-                accel = playerSpeedMax() - speed;
-		                dash_power = std::min( SP.maxDashPower(),
-                                       accel / ( effortMax() * ServerParam::i().dashDirRate( angle ) * dashPowerRate() ) );
-            }
+            M_cycles_to_reach_max_speed = counter;
+        }
 
-            speed += accel;
+        speed *= playerDecay();
 
-            reach_dist += speed;
+        stamina_model.simulateDash( *this, dash_power );
 
-            M_dash_distance_table.back().push_back( reach_dist );
-
-            if (angle_step == 0){
-                if ( M_cycles_to_reach_max_speed < 0
-                     && speed >= realSpeedMax() - 0.01 )
-                {
-                    M_cycles_to_reach_max_speed = counter;
-                }
-            }
-
-            speed *= playerDecay();
-
-            stamina_model.simulateDash( *this, dash_power );
-
-            if ( stamina_model.stamina() <= 0.0 )
-            {
-                break;
-            }
+        if ( stamina_model.stamina() <= 0.0 )
+        {
+            break;
         }
     }
+
+    initAdditionalParamsCyrus();
 }
 
 /*-------------------------------------------------------------------*/
@@ -989,80 +990,53 @@ PlayerType::cyclesToReachMaxSpeed( const double & dash_power ) const
 /*!
 
 */
-//int
-//PlayerType::cyclesToReachDistance( const double & dash_dist ) const
-//{
-//    if ( dash_dist <= 0.001 )
-//    {
-//        return 0;
-//    }
-//
-//    std::vector< double >::const_iterator
-//        it = std::lower_bound( M_dash_distance_table.begin(),
-//                               M_dash_distance_table.end(),
-//                               dash_dist - 0.001 );
-//
-//    if ( it != M_dash_distance_table.end() )
-//    {
-//        return ( static_cast< int >
-//                 ( std::distance( M_dash_distance_table.begin(), it ) )
-//                 + 1 ); // is it necessary?
-//    }
-//
-//    double rest_dist = dash_dist - M_dash_distance_table.back();
-//    int cycle = M_dash_distance_table.size();
-//
-//    cycle += static_cast< int >( std::ceil( rest_dist / realSpeedMax() ) );
-//
-//    return cycle;
-//}
 int
-PlayerType::cyclesToReachDistance( const double & dash_dist, double dash_dir) const
+PlayerType::cyclesToReachDistance( const double & dash_dist ) const
 {
     if ( dash_dist <= 0.001 )
     {
         return 0;
     }
-    AngleDeg dash_angle = (dash_dir == -360.0 ? AngleDeg(0) : AngleDeg(dash_dir));
-    double dash_dir_deg = dash_angle.abs();
-    dash_dir_deg /= 10.0;
-    int dash_dir_step = static_cast<int>(std::round(dash_dir_deg));
-    auto it = std::lower_bound( M_dash_distance_table.at(dash_dir_step).begin(),
-                                M_dash_distance_table.at(dash_dir_step).end(),
-                                dash_dist - 0.001 );
 
-    if ( it != M_dash_distance_table.at(dash_dir_step).end() )
+    std::vector< double >::const_iterator
+        it = std::lower_bound( M_dash_distance_table.begin(),
+                               M_dash_distance_table.end(),
+                               dash_dist - 0.001 );
+
+    if ( it != M_dash_distance_table.end() )
     {
         return ( static_cast< int >
-                 ( std::distance( M_dash_distance_table.at(dash_dir_step).begin(), it ) )
+                 ( std::distance( M_dash_distance_table.begin(), it ) )
                  + 1 ); // is it necessary?
     }
 
-    double rest_dist = dash_dist - M_dash_distance_table.at(dash_dir_step).back();
-    int cycle = (int)M_dash_distance_table.at(dash_dir_step).size();
+    double rest_dist = dash_dist - M_dash_distance_table.back();
+    int cycle = M_dash_distance_table.size();
 
-    cycle += static_cast< int >( std::ceil( rest_dist / realSpeedMax(dash_dir) ) );
+    cycle += static_cast< int >( std::ceil( rest_dist / realSpeedMax() ) );
 
     return cycle;
 }
 
-double PlayerType::reachDistance( const int & cycle, double dash_dir ) const{
-    if (cycle <= 0)
+/*-------------------------------------------------------------------*/
+double
+PlayerType::getMovableDistance( const size_t step ) const
+{
+    if ( step == 0 )
+    {
         return 0.0;
-    AngleDeg dash_angle = (dash_dir == -360.0 ? AngleDeg(0) : AngleDeg(dash_dir));
-    double dash_dir_deg = dash_angle.abs();
-    dash_dir_deg /= 10.0;
-    int dash_dir_step = static_cast<int>(std::round(dash_dir_deg));
-    if (M_dash_distance_table.at(dash_dir_step).size() >= (size_t)cycle){
-        return M_dash_distance_table.at(dash_dir_step).at(cycle - 1);
     }
-    double last_distance = 0.0;
-    if (!M_dash_distance_table.at(dash_dir_step).empty())
-        last_distance = M_dash_distance_table.at(dash_dir_step).back();
-    int rest_cycle = cycle - int(M_dash_distance_table.at(dash_dir_step).size());
-    double rest_dist = realSpeedMax(dash_dir) * static_cast<double>(rest_cycle);
-    return rest_dist + last_distance;
+
+    size_t index = step - 1;
+    if ( index >= M_dash_distance_table.size() )
+    {
+        return M_dash_distance_table.back()
+            + realSpeedMax() * ( index - M_dash_distance_table.size() + 1 );
+    }
+
+    return M_dash_distance_table[index];
 }
+
 /*-------------------------------------------------------------------*/
 /*!
 
@@ -1351,4 +1325,111 @@ PlayerTypeSet::print( std::ostream & os ) const
     return os;
 }
 
+void
+PlayerType::initAdditionalParamsCyrus()
+{
+    const ServerParam & SP = ServerParam::i();
+
+    double accel = SP.maxDashPower() * dashPowerRate() * effortMax();
+
+    M_dash_distance_table_on_dash_dir.clear();
+    M_dash_distance_table_on_dash_dir.reserve( 19 );
+    M_real_speed_max_on_dash_dir.clear();
+    M_real_speed_max_on_dash_dir.reserve(19);
+    M_real_speed_max2_on_dash_dir.clear();
+    M_real_speed_max2_on_dash_dir.reserve(19);
+
+    for (int angle_step = 0; angle_step <= 18; angle_step += 1 ){
+
+        double angle = static_cast<double>(angle_step) * 10.0;
+        double speed = 0.0;
+        double dash_power = SP.maxDashPower();
+        StaminaModel stamina_model;
+        stamina_model.init( *this );
+        double reach_dist = 0.0;
+        accel = SP.maxDashPower() * effortMax() * ServerParam::i().dashDirRate( angle ) * dashPowerRate();
+        // see also soccer_math.h
+        M_real_speed_max_on_dash_dir.push_back(accel / ( 1.0 - playerDecay() )); // sum inf geom series
+        if ( M_real_speed_max_on_dash_dir.back() > playerSpeedMax() )
+        {
+            M_real_speed_max_on_dash_dir.back() = playerSpeedMax();
+        }
+
+        M_real_speed_max2_on_dash_dir.push_back(realSpeedMaxOnDashDir(angle) * realSpeedMaxOnDashDir(angle));
+
+        M_dash_distance_table_on_dash_dir.emplace_back(std::vector<double>{});
+        for ( int counter = 1; counter <= 50; ++counter )
+        {
+            if ( speed + accel > realSpeedMaxOnDashDir(angle) )
+            {
+                accel = playerSpeedMax() - speed;
+                dash_power = std::min( SP.maxDashPower(),
+                                       accel / ( effortMax() * ServerParam::i().dashDirRate( angle ) * dashPowerRate() ) );
+            }
+
+            speed += accel;
+
+            reach_dist += speed;
+
+            M_dash_distance_table_on_dash_dir.back().push_back( reach_dist );
+
+            speed *= playerDecay();
+
+            stamina_model.simulateDash( *this, dash_power );
+
+            if ( stamina_model.stamina() <= 0.0 )
+            {
+                break;
+            }
+        }
+    }
+}
+
+int
+PlayerType::cyclesToReachDistanceOnDashDir( const double & dash_dist, double dash_dir) const
+{
+    if ( dash_dist <= 0.001 )
+    {
+        return 0;
+    }
+    AngleDeg dash_angle = AngleDeg(dash_dir);
+    double dash_dir_deg = dash_angle.abs();
+    dash_dir_deg /= 10.0;
+    int dash_dir_step = static_cast<int>(std::round(dash_dir_deg));
+    auto it = std::lower_bound( M_dash_distance_table_on_dash_dir.at(dash_dir_step).begin(),
+                                M_dash_distance_table_on_dash_dir.at(dash_dir_step).end(),
+                                dash_dist - 0.001 );
+
+    if ( it != M_dash_distance_table_on_dash_dir.at(dash_dir_step).end() )
+    {
+        return ( static_cast< int >
+                 ( std::distance( M_dash_distance_table_on_dash_dir.at(dash_dir_step).begin(), it ) )
+                 + 1 ); // is it necessary?
+    }
+
+    double rest_dist = dash_dist - M_dash_distance_table_on_dash_dir.at(dash_dir_step).back();
+    int cycle = (int)M_dash_distance_table_on_dash_dir.at(dash_dir_step).size();
+
+    cycle += static_cast< int >( std::ceil( rest_dist / realSpeedMaxOnDashDir(dash_dir) ) );
+
+    return cycle;
+}
+
+double PlayerType::reachDistanceOnDashDir( const int & cycle, double dash_dir ) const{
+    if (cycle <= 0)
+        return 0.0;
+    AngleDeg dash_angle = AngleDeg(dash_dir);
+    double dash_dir_deg = dash_angle.abs();
+    dash_dir_deg /= 10.0;
+    int dash_dir_step = static_cast<int>(std::round(dash_dir_deg));
+    if (M_dash_distance_table_on_dash_dir.at(dash_dir_step).size() >= (size_t)cycle){
+        return M_dash_distance_table_on_dash_dir.at(dash_dir_step).at(cycle - 1);
+    }
+    double last_distance = 0.0;
+    if (!M_dash_distance_table_on_dash_dir.at(dash_dir_step).empty())
+        last_distance = M_dash_distance_table_on_dash_dir.at(dash_dir_step).back();
+    int rest_cycle = cycle - int(M_dash_distance_table_on_dash_dir.at(dash_dir_step).size());
+    double rest_dist = realSpeedMaxOnDashDir(dash_dir) * static_cast<double>(rest_cycle);
+    return rest_dist + last_distance;
+}
 }
