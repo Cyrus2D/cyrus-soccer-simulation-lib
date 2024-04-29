@@ -222,7 +222,7 @@ public:
     /*!
       \brief clear all cached data
     */
-    void clear();
+    virtual void clear();
 
     /*!
       \brief predict self interception

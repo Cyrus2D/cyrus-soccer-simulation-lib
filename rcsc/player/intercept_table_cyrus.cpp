@@ -75,6 +75,7 @@ InterceptTableCyrus::clear()
 {
     InterceptTable::clear();
     M_self_step_tackle = 1000;
+    M_self_exhaust_step_tackle = 1000;
     M_self_results_tackle.clear();
 }
 

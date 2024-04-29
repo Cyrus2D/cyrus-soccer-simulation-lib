@@ -117,7 +117,7 @@ private:
     /*!
       \brief clear all cached data
     */
-    void clear();
+    void clear() override;
 
     /*!
       \brief predict self interception
