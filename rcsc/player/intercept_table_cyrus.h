@@ -104,14 +104,6 @@ public:
     {
         return M_self_results_tackle;
     }
-    /*!
-      \brief get all players' intercept step container.
-      \return map container. key: pointer, value: step value
-     */
-    const std::map< const AbstractPlayerObject *, int > & playerMap() const
-      {
-          return M_player_map;
-      }
 
 private:
     /*!
