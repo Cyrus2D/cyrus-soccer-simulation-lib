@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(libcyrus VERSION 2023)
 
-set(LIBRCSC_SOVERSION 16) # protocol version
+set(LIBRCSC_SOVERSION 18) # protocol version
 set(LIBRCSC_BUILDVERSION ${LIBRCSC_SOVERSION}.0.0)
 
 if(CMAKE_VERSION VERSION_LESS "3.7.0")
