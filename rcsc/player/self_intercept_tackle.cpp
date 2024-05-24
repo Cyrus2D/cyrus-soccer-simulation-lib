@@ -103,7 +103,7 @@ SelfInterceptTackle::simulate( const rcsc::WorldModel & wm, const int max_cycle,
                        __FILE__": ------------- predict self intercept tackle ---------------" );
      #endif
 
-    if ( M_ball_pos_cache.size() < 2 )
+    if ( M_ball_pos_cache.empty() )
     {
         dlog.addText( Logger::INTERCEPT,
                       __FILE__": no ball position cache." );

@@ -138,7 +138,7 @@ SelfInterceptV13::simulate( const WorldModel & wm,
     //                   __FILE__": ------------- predict self ---------------" );
     // #endif
 
-    if ( M_ball_pos_cache.size() < 2 )
+    if ( M_ball_pos_cache.empty() )
     {
         dlog.addText( Logger::INTERCEPT,
                       __FILE__": no ball position cache." );
@@ -3069,6 +3069,10 @@ SelfInterceptV13::createBallCache(const WorldModel & wm, int max_cycle)
     Vector2D bvel = wm.ball().vel();
     double bspeed = bvel.r();
 
+    if (wm.kickableOpponent() != nullptr){
+        M_ball_pos_cache.push_back(bpos);
+        return;
+    }
     for ( int i = 0; i < max_cycle; ++i )
     {
         M_ball_pos_cache.push_back( bpos );
