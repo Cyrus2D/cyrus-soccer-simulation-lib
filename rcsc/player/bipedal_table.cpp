@@ -374,5 +374,9 @@ TargetActionTable::get_trajectory(const rcsc::Vector2D &target,
     const int angle_index = std::min((int)round((target_rel.th().degree() + 180.)/ 5.), 71);
     std::cout << "target_rel: " << target_rel.th().degree() << std::endl;
     std::cout << "angle_index: " << angle_index << std::endl;
-    return M_data[ptype_id][angle_index].M_trajectory;
+    std::vector<Vector2D> trajectory;
+    for (const auto & point: M_data[ptype_id][angle_index].M_trajectory){
+        trajectory.push_back(point.rotatedVector(body));
+    }
+    return trajectory;
 }
