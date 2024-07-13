@@ -32,6 +32,7 @@ add_library(rcsc_player OBJECT
   stamina_with_pointto.cpp
   self_intercept_v13_cyrus.cpp
   self_intercept_tackle.cpp
+  bipedal_table.cpp
   )
 
 target_include_directories(rcsc_player
@@ -81,5 +82,6 @@ install(FILES
   self_intercept_v13_cyrus.h
   self_intercept_tackle.h
   cut_ball_calculator.h
+  bipedal_table.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rcsc/player
   )

@@ -26,7 +26,6 @@ public:
                                                double safe_dist_thr = 0,
                                                double predict_body_double = -360.0,
                                                bool check_omni=false) const {
-
         //    	update_opps_pos(wm);
         if(!predict_pos.isValid())
             predict_pos = player->pos();
