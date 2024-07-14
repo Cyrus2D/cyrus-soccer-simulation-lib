@@ -279,6 +279,11 @@ public:
           return *M_audio_memory;
       }
 
+      const std::shared_ptr< AudioMemory > audioMemoryPtr() const
+      {
+          return M_audio_memory;
+      }
+
     /*!
       \brief set new audio memory
       \param memory pointer to the memory instance. This must be
