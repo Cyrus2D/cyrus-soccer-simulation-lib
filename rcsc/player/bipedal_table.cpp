@@ -1,6 +1,8 @@
 #include <rcsc/player/bipedal_table.h>
 #include <rcsc/common/player_param.h>
 #include <rcsc/common/server_param.h>
+
+
 #include <iomanip>
 #include <fstream>
 #include <sstream>
@@ -15,6 +17,28 @@ double round_to_precision(double num, double precision) {
     double factor = 1.0 / precision;
     return round(num * factor) / factor;
 }
+
+double
+check_and_normalize_dash_power( const WorldModel & wm,
+                                double power )
+
+{
+    const ServerParam & param = ServerParam::i();
+
+    if ( power < param.minDashPower() - 0.001
+            || param.maxDashPower() + 0.001 < power )
+    {
+        dlog.addText( Logger::ACTION,
+                        __FILE__" (setDash) exceeding the dash power range %.1f", power );
+        std::cerr << wm.teamName() << ' ' << wm.self().unum() << ": " << wm.time()
+                    << " exceeding the dash power range [left]: " << power
+                    << std::endl;
+        power = param.normalizeDashPower( power );
+    }
+
+    return power;
+}
+
 
 double
 check_and_normalize_dash_dir( const WorldModel & wm,
@@ -54,22 +78,54 @@ AStarState* simulate_next_state(const AStarState* state,
                                 const WorldModel& wm,
                                 const double & dash_rate,
                                 const double & player_decay) {
-    DB("NSA")
+    double left_power = action.power_l ;
+    double right_power = action.power_r;
+    //====================================power check======================
+    DB("NSA")                                
+    double left_command_power = check_and_normalize_dash_power( wm, left_power );
+    double right_command_power = check_and_normalize_dash_power( wm, right_power );
+
+    //========================check stamina for dash======================
+    double left_stamina = ( left_power < 0.0 ? left_power * -1.0 : left_power * 0.5 );
+    double right_stamina = ( right_power < 0.0 ? right_power * -1.0 : right_power * 0.5 );
+
+    double consumed_stamina = std::min( left_stamina + right_stamina,
+                                        wm.self().stamina() + wm.self().playerType().extraStamina() );
+
+    if ( consumed_stamina < 1.0e-5 )
+    {
+        left_power = 0.0;
+        right_power = 0.0;
+    }
+
+    left_stamina = consumed_stamina * left_stamina / ( left_stamina + right_stamina );
+    right_stamina = consumed_stamina * right_stamina / ( left_stamina + right_stamina );
+
+    left_power = ( left_power < 0.0 ? left_stamina * -1.0 : left_stamina * 2.0 );
+    right_power = ( right_power < 0.0 ? right_stamina * -1.0 : right_stamina * 2.0 );
+
+    left_command_power = std::round( left_command_power * 1000.0 ) * 0.001;
+    right_command_power = std::round( right_command_power * 1000.0 ) * 0.001;
+
+    //======================================dir check==========================
+    DB("NSB")                                
+
     double left_command_dir = check_and_normalize_dash_dir(wm, action.dir_l.degree());
     double right_command_dir = check_and_normalize_dash_dir(wm, action.dir_r.degree());
+
 
     double left_dir_rate = ServerParam::i().dashDirRate(left_command_dir);
     double right_dir_rate = ServerParam::i().dashDirRate(right_command_dir);
 
-    double left_accel_mag = std::fabs(action.power_l * left_dir_rate * dash_rate); // TODO Not current dash rate?
-    double right_accel_mag = std::fabs(action.power_r * right_dir_rate * dash_rate);
+    double left_accel_mag = std::fabs(left_command_power * left_dir_rate * dash_rate); // TODO Not current dash rate?
+    double right_accel_mag = std::fabs(right_command_power * right_dir_rate * dash_rate);
 
     DB("NSB")
     AngleDeg left_accel_angle = state->M_body + left_command_dir;
     AngleDeg right_accel_angle = state->M_body + right_command_dir;
 
-    if (action.power_l < 0.0) left_accel_angle += 180.0;
-    if (action.power_r < 0.0) right_accel_angle += 180.0;
+    if (left_power < 0.0) left_accel_angle += 180.0;
+    if (right_power < 0.0) right_accel_angle += 180.0;
 
     DB("NSC")
     const Vector2D left_accel = Vector2D::from_polar(left_accel_mag, left_accel_angle);
@@ -87,9 +143,9 @@ AStarState* simulate_next_state(const AStarState* state,
     const Vector2D new_vel = (vel_r + vel_l) * 0.5;
 
     DB("NSE")
-    double dash_power = (action.power_l < 0.0 ? -action.power_l : action.power_l * 0.5) + (action.power_r < 0.0 ? -action.power_r : action.power_r * 0.5);
-    double left_dash_power = action.power_l;
-    double right_dash_power = action.power_r;
+    double dash_power = (left_command_power < 0.0 ? -left_command_power : left_command_power * 0.5) + (right_command_power < 0.0 ? -right_command_power : right_command_power * 0.5);
+    double left_dash_power = left_command_power;
+    double right_dash_power = right_command_power;
 
     double dash_rotation = AngleDeg::rad2deg(omega);
     Vector2D dash_accel = new_vel - state->M_vel;
