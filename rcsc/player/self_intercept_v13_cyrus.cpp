@@ -550,6 +550,7 @@ SelfInterceptV13::predictOneDash( const WorldModel & wm,std::vector< Intercept >
                                          ServerParam::i().ballSize(),
                                          self.playerType().playerSize(),
                                          self.playerType().kickableMargin() );
+        double kick_rate_diff_abs = std::fabs( best_kick_rate - it_kick_rate );
 #ifdef DEBUG_PRINT_ONE_STEP
         dlog.addText( Logger::INTERCEPT,
                       "____ turn=%d dash=%d power=%.1f dir=%.1f ball_dist=%.3f stamina=%.1f k-rate=%.2f",
@@ -560,8 +561,20 @@ SelfInterceptV13::predictOneDash( const WorldModel & wm,std::vector< Intercept >
         if (useKickRateInsteadOfDist()){
 
 
-            if ((best->ballDist() > min_ball_dist && it->ballDist() > min_ball_dist) || (best->ballDist() < min_ball_dist && it->ballDist() < min_ball_dist)){
-                if (it_kick_rate > best_kick_rate){
+            if ((best->ballDist() > min_ball_dist &&
+                it->ballDist() > min_ball_dist)
+                ||
+                (best->ballDist() < min_ball_dist &&
+                it->ballDist() < min_ball_dist)){
+                if (kick_rate_diff_abs < 0.0015 && isNewBetterThanBestForDribble(wm, *it, *best, ball_next)){
+                    best = &(*it);
+#ifdef DEBUG_PRINT_SHORT_STEP
+                        dlog.addText( Logger::INTERCEPT,
+                                      "--> updated(1.5)" );
+#endif
+
+                }
+                else if (it_kick_rate > best_kick_rate){
                     best = &(*it);
                     #ifdef DEBUG_PRINT_ONE_STEP
                     dlog.addText( Logger::INTERCEPT,
@@ -975,7 +988,39 @@ SelfInterceptV13::getOneStepDashPower( const WorldModel & wm,const Vector2D & ne
 /*!
 
  */
+bool SelfInterceptV13::isNewBetterThanBestForDribble(const WorldModel & wm,
+                                   const Intercept & new_intercept,
+                                   const Intercept & best_intercept,
+                                 const rcsc::Vector2D & ball_pos) const{
+    auto new_self_pos = new_intercept.selfPos();
+    auto best_self_pos = best_intercept.selfPos();
 
+    auto new_ball_angle = (ball_pos - new_self_pos).th();
+    auto best_ball_angle = (ball_pos - best_self_pos).th();
+
+    auto target_dribble = Vector2D(49, 0);
+    if (ball_pos.x < 0)
+        return false;
+    if (ball_pos.x < 35)
+        target_dribble = ball_pos + Vector2D(5, 0);
+    auto self_to_target_angle = (target_dribble - new_self_pos).th();
+
+    auto new_ball_angle_to_target = (new_ball_angle - self_to_target_angle).abs();
+    auto best_ball_angle_to_target = (best_ball_angle - self_to_target_angle).abs();
+    if (new_ball_angle_to_target > 180)
+        new_ball_angle_to_target = 360 - new_ball_angle_to_target;
+    if (best_ball_angle_to_target > 180)
+        best_ball_angle_to_target = 360 - best_ball_angle_to_target;
+
+    double diff = (AngleDeg(new_ball_angle_to_target) - AngleDeg(best_ball_angle_to_target)).abs();
+    if (diff > 180)
+        diff = 360 - diff;
+    if (diff < 20)
+        return false;
+    if (new_ball_angle_to_target < best_ball_angle_to_target)
+        return true;
+    return false;
+}
 void
 SelfInterceptV13::predictShortStep( const WorldModel & wm,const int max_cycle,
                                     const bool save_recovery,
@@ -1124,6 +1169,10 @@ SelfInterceptV13::predictShortStep( const WorldModel & wm,const int max_cycle,
                                              ServerParam::i().ballSize(),
                                              self.playerType().playerSize(),
                                              self.playerType().kickableMargin() );
+            double kick_rate_diff_abs = std::fabs(best_kick_rate - it_kick_rate);
+            #ifdef DEBUG_PRINT_SHORT_STEP
+            dlog.addText( Logger::INTERCEPT, "best kick rate %.4f it kick rate %.4f diff %.4f", best_kick_rate, it_kick_rate, kick_rate_diff_abs);
+            #endif
             if ( best->ballDist() < safety_ball_dist
                  && it.ballDist() < safety_ball_dist )
             {
@@ -1134,6 +1183,16 @@ SelfInterceptV13::predictShortStep( const WorldModel & wm,const int max_cycle,
                     dlog.addText( Logger::INTERCEPT,
                                   "--> updated(1)" );
                     #endif
+                }
+                else if (best->turnStep() == it.turnStep() && kick_rate_diff_abs < 0.0015 &&
+                        isNewBetterThanBestForDribble(wm, it, *best, ball_pos)){
+
+                    best = &(it);
+                    #ifdef DEBUG_PRINT_SHORT_STEP
+                    dlog.addText( Logger::INTERCEPT,
+                                  "--> updated(1.5)" );
+                    #endif
+
                 }
                 else if ( best->turnStep() == it.turnStep()
                           && best_kick_rate < it_kick_rate )

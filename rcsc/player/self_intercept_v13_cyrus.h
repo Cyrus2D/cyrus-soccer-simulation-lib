@@ -80,6 +80,10 @@ private:
     bool useKickRateInsteadOfDist() const {
         return true;
     }
+    bool isNewBetterThanBestForDribble(const WorldModel & wm,
+                                       const Intercept & new_intercept,
+                                       const Intercept & best_intercept,
+                                       const rcsc::Vector2D & ball_pos) const;
     bool useCollideToBall(const WorldModel & wm) const;
     double minBallDistNoCollide(const WorldModel & wm) const;
     /////////////////////////////////////////////////////
