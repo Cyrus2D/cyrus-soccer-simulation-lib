@@ -51,7 +51,7 @@ class WorldModel;
   \brief interception info holder for all players
 */
 class InterceptTable {
-private:
+protected:
 
     //! last updated time
     GameTime M_update_time;
@@ -60,6 +60,7 @@ private:
     int M_self_step;
     //! predicted min reach step for self with stamina exhaust
     int M_self_exhaust_step;
+
     //! predicted min reach step for teammate
     int M_teammate_step;
     //! predicted reach step for second fastest teammate
@@ -217,29 +218,29 @@ public:
           return M_player_map;
       }
 
-private:
+  protected:
     /*!
       \brief clear all cached data
     */
-    void clear();
+    virtual void clear();
 
     /*!
       \brief predict self interception
       \param wm const reference to the world model
     */
-    void predictSelf( const WorldModel & wm );
+    virtual void predictSelf( const WorldModel & wm );
 
     /*!
       \predict teammate interception
       \param wm const reference to the world model
     */
-    void predictTeammate( const WorldModel & wm );
+    virtual void predictTeammate( const WorldModel & wm );
 
     /*!
       \predict opponent interception
       \param wm const reference to the world model
     */
-    void predictOpponent( const WorldModel & wm );
+    virtual void predictOpponent( const WorldModel & wm );
 };
 
 }

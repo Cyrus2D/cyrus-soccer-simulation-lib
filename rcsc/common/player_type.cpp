@@ -662,6 +662,8 @@ PlayerType::initAdditionalParams()
             break;
         }
     }
+
+    initAdditionalParamsCyrus();
 }
 
 /*-------------------------------------------------------------------*/
@@ -1323,4 +1325,111 @@ PlayerTypeSet::print( std::ostream & os ) const
     return os;
 }
 
+void
+PlayerType::initAdditionalParamsCyrus()
+{
+    const ServerParam & SP = ServerParam::i();
+
+    double accel = SP.maxDashPower() * dashPowerRate() * effortMax();
+
+    M_dash_distance_table_on_dash_dir.clear();
+    M_dash_distance_table_on_dash_dir.reserve( 19 );
+    M_real_speed_max_on_dash_dir.clear();
+    M_real_speed_max_on_dash_dir.reserve(19);
+    M_real_speed_max2_on_dash_dir.clear();
+    M_real_speed_max2_on_dash_dir.reserve(19);
+
+    for (int angle_step = 0; angle_step <= 18; angle_step += 1 ){
+
+        double angle = static_cast<double>(angle_step) * 10.0;
+        double speed = 0.0;
+        double dash_power = SP.maxDashPower();
+        StaminaModel stamina_model;
+        stamina_model.init( *this );
+        double reach_dist = 0.0;
+        accel = SP.maxDashPower() * effortMax() * ServerParam::i().dashDirRate( angle ) * dashPowerRate();
+        // see also soccer_math.h
+        M_real_speed_max_on_dash_dir.push_back(accel / ( 1.0 - playerDecay() )); // sum inf geom series
+        if ( M_real_speed_max_on_dash_dir.back() > playerSpeedMax() )
+        {
+            M_real_speed_max_on_dash_dir.back() = playerSpeedMax();
+        }
+
+        M_real_speed_max2_on_dash_dir.push_back(realSpeedMaxOnDashDir(angle) * realSpeedMaxOnDashDir(angle));
+
+        M_dash_distance_table_on_dash_dir.emplace_back(std::vector<double>{});
+        for ( int counter = 1; counter <= 50; ++counter )
+        {
+            if ( speed + accel > realSpeedMaxOnDashDir(angle) )
+            {
+                accel = playerSpeedMax() - speed;
+                dash_power = std::min( SP.maxDashPower(),
+                                       accel / ( effortMax() * ServerParam::i().dashDirRate( angle ) * dashPowerRate() ) );
+            }
+
+            speed += accel;
+
+            reach_dist += speed;
+
+            M_dash_distance_table_on_dash_dir.back().push_back( reach_dist );
+
+            speed *= playerDecay();
+
+            stamina_model.simulateDash( *this, dash_power );
+
+            if ( stamina_model.stamina() <= 0.0 )
+            {
+                break;
+            }
+        }
+    }
+}
+
+int
+PlayerType::cyclesToReachDistanceOnDashDir( const double & dash_dist, double dash_dir) const
+{
+    if ( dash_dist <= 0.001 )
+    {
+        return 0;
+    }
+    AngleDeg dash_angle = AngleDeg(dash_dir);
+    double dash_dir_deg = dash_angle.abs();
+    dash_dir_deg /= 10.0;
+    int dash_dir_step = static_cast<int>(std::round(dash_dir_deg));
+    auto it = std::lower_bound( M_dash_distance_table_on_dash_dir.at(dash_dir_step).begin(),
+                                M_dash_distance_table_on_dash_dir.at(dash_dir_step).end(),
+                                dash_dist - 0.001 );
+
+    if ( it != M_dash_distance_table_on_dash_dir.at(dash_dir_step).end() )
+    {
+        return ( static_cast< int >
+                 ( std::distance( M_dash_distance_table_on_dash_dir.at(dash_dir_step).begin(), it ) )
+                 + 1 ); // is it necessary?
+    }
+
+    double rest_dist = dash_dist - M_dash_distance_table_on_dash_dir.at(dash_dir_step).back();
+    int cycle = (int)M_dash_distance_table_on_dash_dir.at(dash_dir_step).size();
+
+    cycle += static_cast< int >( std::ceil( rest_dist / realSpeedMaxOnDashDir(dash_dir) ) );
+
+    return cycle;
+}
+
+double PlayerType::reachDistanceOnDashDir( const int & cycle, double dash_dir ) const{
+    if (cycle <= 0)
+        return 0.0;
+    AngleDeg dash_angle = AngleDeg(dash_dir);
+    double dash_dir_deg = dash_angle.abs();
+    dash_dir_deg /= 10.0;
+    int dash_dir_step = static_cast<int>(std::round(dash_dir_deg));
+    if (M_dash_distance_table_on_dash_dir.at(dash_dir_step).size() >= (size_t)cycle){
+        return M_dash_distance_table_on_dash_dir.at(dash_dir_step).at(cycle - 1);
+    }
+    double last_distance = 0.0;
+    if (!M_dash_distance_table_on_dash_dir.at(dash_dir_step).empty())
+        last_distance = M_dash_distance_table_on_dash_dir.at(dash_dir_step).back();
+    int rest_cycle = cycle - int(M_dash_distance_table_on_dash_dir.at(dash_dir_step).size());
+    double rest_dist = realSpeedMaxOnDashDir(dash_dir) * static_cast<double>(rest_cycle);
+    return rest_dist + last_distance;
+}
 }

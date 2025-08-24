@@ -36,15 +36,17 @@
 #include <rcsc/common/player_type.h>
 #include <rcsc/geom/vector_2d.h>
 #include <rcsc/geom/angle_deg.h>
+#include <rcsc/geom/circle_2d.h>
+#include <rcsc/common/server_param.h>
 #include <rcsc/types.h>
-
+#include <rcsc/common/logger.h>
 #include <vector>
 
 namespace rcsc {
 
 class AbstractPlayerObject;
 class PlayerEvaluator;
-
+class WorldModel;
 /*!
   \class AbstractPlayerObject
   \brief abstact player object class
@@ -54,6 +56,8 @@ public:
 
     //! type of pointer container
     typedef std::vector< const AbstractPlayerObject * > Cont;
+    Vector2D M_pos; //!< global coordinate
+    Vector2D M_base_pos; //!< global coordinate
 
 protected:
 
@@ -67,7 +71,7 @@ protected:
     const PlayerType * M_player_type; //!< player type reference
     Card M_card; //!< card information
 
-    Vector2D M_pos; //!< global coordinate
+
     int M_pos_count; //!< main accuracy counter
 
     Vector2D M_seen_pos; //!< last seen global coordinate
@@ -96,6 +100,11 @@ protected:
     AngleDeg M_angle_from_ball; //!< angle from ball
     double M_dist_from_self; //!< distance from self
     AngleDeg M_angle_from_self; //!< angle from self
+
+    int M_player_unique_code;
+
+    double M_seen_stamina; //!< seen stamina
+    int M_seen_stamina_count; //!< seen stamina count
 
 private:
 
@@ -222,6 +231,10 @@ public:
           return M_unum;
       }
 
+    int player_unique_code() const
+      {
+          return M_player_unique_code;
+      }
     /*!
       \brief get uniform number accuracy count
       \return count since last observation
@@ -521,6 +534,26 @@ public:
      */
     static double get_maximum_evaluation( const Cont & cont,
                                           const PlayerEvaluator * evaluator );
+
+    /*!
+      \brief get the seen stamina inf
+      \return seen stamina value
+     */
+    const
+    double & seenStamina() const
+      {
+          return M_seen_stamina;
+      }
+
+    /*!
+      \brief get the seen stamina inf
+      \return seen stamina value
+     */
+    const
+    int & seenStaminaCount() const
+      {
+          return M_seen_stamina_count;
+      }
 
 };
 

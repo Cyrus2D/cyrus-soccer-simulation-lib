@@ -139,7 +139,10 @@ public:
     static const std::int32_t ACT_SEQ   = LEVEL_20; //!< log level definition alias
     static const std::int32_t ACTION_CHAIN = ACT_SEQ; //!< log level definition alias
     static const std::int32_t PLAN      = LEVEL_21; //!< log level definition alias
-
+    static const std::int32_t TH_PASS = LEVEL_22; //!< log level definition alias
+    static const std::int32_t L_PASS = LEVEL_23; //!< log level definition alias
+    static const std::int32_t D_PASS = LEVEL_24; //!< log level definition alias
+    static const std::int32_t C_PASS = LEVEL_25; //!< log level definition alias
     static const std::int32_t TRAINING  = LEVEL_32; //!< log level definition alias
 
     static const std::int32_t LEVEL_ANY = 0xffffffff; //!< log level definition variable

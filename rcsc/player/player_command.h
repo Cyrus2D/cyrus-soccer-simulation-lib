@@ -408,6 +408,12 @@ class PlayerDashCommand
 private:
     double M_power; //!< dash power
     double M_dir; //!< dash direction
+
+    bool M_two_legs;
+    double M_left_power; //!< dash power for the left leg
+    double M_left_dir; //!< dash dir for the left leg
+    double M_right_power; //!< dash power for the right leg
+    double M_right_dir; //!< dash dir for the right leg
 public:
     /*!
       \brief construct with dash power
@@ -415,12 +421,35 @@ public:
       \param dir dash direction
     */
     explicit
-    PlayerDashCommand( const double & power,
-                       const double & dir = 0.0 )
-        : M_power( power )
-        , M_dir( dir )
-      { }
-
+    PlayerDashCommand( const double power,
+                       const double dir = 0.0 )
+            : M_power( power ),
+              M_dir( dir ),
+              M_two_legs( false ),
+              M_left_power( 0.0 ),
+              M_left_dir( 0.0 ),
+              M_right_power( 0.0 ),
+              M_right_dir( 0.0 )
+    { }
+    /*!
+      \brief construct dash command for each leg
+      \param left_power dash power for the left leg
+      \param left_dir dash direction for the left leg
+      \param right_power dash power for the right leg
+      \param right_dir dash direction for the right leg
+    */
+    PlayerDashCommand( const double left_power,
+                       const double left_dir,
+                       const double right_power,
+                       const double right_dir )
+            : M_power( 0.0 ),
+              M_dir( 0.0 ),
+              M_two_legs( true ),
+              M_left_power( left_power ),
+              M_left_dir( left_dir ),
+              M_right_power( right_power ),
+              M_right_dir( right_dir )
+    { }
     /*!
       \brief get command type
       \return command type Id

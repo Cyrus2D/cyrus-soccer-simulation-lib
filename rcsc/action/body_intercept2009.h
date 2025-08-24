@@ -50,6 +50,8 @@ private:
     const bool M_save_recovery;
     //! facing target target point. if specified this, plaeyr try to turn neck to this point.
     const Vector2D M_face_point;
+    const Vector2D M_origin_target;
+    const double M_origin_dist;
 public:
     /*!
       \brief construct with all parameters
@@ -61,15 +63,34 @@ public:
                         const Vector2D & face_point = Vector2D::INVALIDATED )
         : M_save_recovery( save_recovery )
         , M_face_point( face_point )
+        , M_origin_target( Vector2D::INVALIDATED)
+        , M_origin_dist ( 0 )
       { }
 
+    explicit
+    Body_Intercept2009( const Vector2D & origin_target,
+                        const Vector2D & face_point = Vector2D::INVALIDATED )
+        : M_save_recovery( false )
+        , M_face_point( face_point )
+        , M_origin_target ( origin_target )
+        , M_origin_dist ( 0 )
+      { }
+    explicit
+    Body_Intercept2009( const Vector2D & origin_target,
+                        const double & origin_dist,
+                        const Vector2D & face_point = Vector2D::INVALIDATED )
+        : M_save_recovery( false )
+        , M_face_point( face_point )
+        , M_origin_target ( origin_target )
+        , M_origin_dist ( origin_dist )
+      { }
     /*!
       \brief execute action
       \param agent pointer to the agent itself
       \return true if action is performed
     */
     bool execute( PlayerAgent * agent );
-
+    bool executeTackle( PlayerAgent * agent );
 
 private:
 
@@ -87,7 +108,12 @@ private:
       \return interception info object
     */
     InterceptInfo getBestIntercept( const WorldModel & wm,
-                                    const InterceptTable * table ) const;
+                                    const InterceptTable * table,
+                                    unsigned int &ignore_intercept) const;
+
+    InterceptInfo getBestInterceptTackle( const WorldModel & wm,
+                                    const InterceptTable * table,
+                                    unsigned int &ignore_intercept) const;
 
     InterceptInfo getBestIntercept_Test( const WorldModel & wm,
                                          const InterceptTable * table ) const;

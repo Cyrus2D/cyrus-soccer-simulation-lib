@@ -37,6 +37,8 @@
 
 #include "fullstate_sensor.h"
 
+#include "stamina_with_pointto.h"
+
 #include <rcsc/common/logger.h>
 #include <rcsc/common/server_param.h>
 #include <rcsc/common/player_type.h>
@@ -58,7 +60,9 @@ int PlayerObject::S_player_count = 0;
 PlayerObject::PlayerObject()
     : AbstractPlayerObject( ++S_player_count ),
       M_ghost_count( 0 ),
-      M_tackle_count( 1000 )
+      M_tackle_count( 1000 ),
+      M_seen_dist(1000),
+      M_seen_angle(-360)
 {
 
 }
@@ -74,6 +78,8 @@ PlayerObject::PlayerObject( const SideID side,
       M_tackle_count( 1000 )
 {
     M_dist_from_self = p.rpos_.r();
+    M_seen_dist = p.seen_dist;
+    M_seen_angle = p.seen_angle;
 
     if ( p.hasVel() )
     {
@@ -93,6 +99,7 @@ PlayerObject::PlayerObject( const SideID side,
     {
         M_pointto_angle = p.arm_;
         M_pointto_count = 0;
+        StaminaWithPointto::setStaminaFromVisionData(M_seen_stamina, M_pointto_angle.degree());
     }
 
     M_kicking = p.kicking_;
@@ -193,6 +200,17 @@ PlayerObject::update()
     M_pointto_count = std::min( 1000, M_pointto_count + 1 );
     M_kicking = false;
     M_tackle_count = std::min( 1000, M_tackle_count + 1 );
+    M_seen_stamina_count = std::min( 1000, M_seen_stamina_count + 1 );
+    M_seen_stamina -= ServerParam::i().maxDashPower();
+    if ( playerTypePtr() )
+    {
+        M_seen_stamina += playerTypePtr()->staminaIncMax();
+    }
+    else
+    {
+        M_seen_stamina += ServerParam::i().defaultStaminaIncMax();
+    }
+    if ( M_seen_stamina < -1.0 ) M_seen_stamina = -1.0;
 }
 
 /*-------------------------------------------------------------------*/
@@ -205,6 +223,9 @@ PlayerObject::updateBySee( const SideID side,
 {
     M_side = side;
     M_ghost_count = 0;
+
+    M_seen_dist = p.seen_dist;
+    M_seen_angle = p.seen_angle;
 
     // unum is updated only when unum is seen.
     if ( p.unum_ != Unum_Unknown )
@@ -309,6 +330,8 @@ PlayerObject::updateBySee( const SideID side,
     {
         M_pointto_angle = p.arm_;
         M_pointto_count = 0;
+        M_seen_stamina_count = 0;
+        StaminaWithPointto::setStaminaFromVisionData(M_seen_stamina, M_pointto_angle.degree());
     }
 
     M_kicking = p.isKicking();
@@ -324,6 +347,7 @@ PlayerObject::updateBySee( const SideID side,
     {
         M_tackle_count = 1000;
     }
+    M_seen_stamina_count = 0;
 }
 
 /*-------------------------------------------------------------------*/
@@ -448,6 +472,82 @@ PlayerObject::updateByHear( const SideID heard_side,
             M_body = heard_body;
             M_body_count = 1;
         }
+    }
+}
+
+void
+PlayerObject::updateByHearCyrus( const SideID heard_side,
+                                 const int heard_unum,
+                                 const bool is_goalie,
+                                 const Vector2D & heard_pos,
+                                 const double & heard_body,
+                                 const double & heard_stamina,
+                                 const bool is_our_side,
+                                 const int pos_count,
+                                 const int sender,
+                                 const double dist_to_sender,
+                                 const bool update_pos_if_pc_is_more)
+{
+    M_heard_pos = heard_pos;
+    M_heard_pos_count = pos_count;
+
+    M_ghost_count = 0;
+
+    if ( heard_side != NEUTRAL )
+    {
+        M_side = heard_side;
+    }
+
+    if ( heard_unum != Unum_Unknown
+         && unumCount() > 0 )
+    {
+        M_unum = heard_unum;
+        M_unum_count = 0;
+    }
+
+    if ( is_goalie )
+    {
+        M_goalie = true;
+    }
+
+    if ( pos_count < M_pos_count)
+    {
+        M_pos_count = pos_count;
+        M_pos = heard_pos;
+    }
+    else if(sender == heard_unum && is_our_side)
+    {
+        M_pos_count = pos_count;
+        M_pos = heard_pos;
+    }
+    else if (update_pos_if_pc_is_more)
+    {
+        double dist2self = distFromSelf();
+        if(pos_count == M_pos_count){
+            if(dist_to_sender < dist2self+20){
+                M_pos_count = pos_count;
+                M_pos = heard_pos;
+            }
+        }
+    }
+
+    if ( heard_body != -360.0 )
+    {
+        if (is_our_side && heard_unum == sender){
+            M_body = heard_body;
+            M_body_count = 0;
+        }
+        else if ( bodyCount() >= 2 && bodyCount() < pos_count)
+        {
+            M_body = heard_body;
+            M_body_count = 1;
+        }
+    }
+
+    if ( heard_stamina > 0.0 )
+    {
+        // TODO implementing heard stamina
+//        M_heard_stamina = heard_stamina;
     }
 }
 

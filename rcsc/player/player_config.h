@@ -158,6 +158,10 @@ private:
     bool M_debug_block; //!< debug level flag
     bool M_debug_mark; //!< debug level flag
     bool M_debug_positioning; //!< debug level flag
+    bool M_debug_th_pass; //!< debug level flag
+    bool M_debug_l_pass; //!< debug level flag
+    bool M_debug_d_pass; //!< debug level flag
+    bool M_debug_c_pass; //!< debug level flag
     bool M_debug_role; //!< debug level flag
     bool M_debug_plan; //!< debug level flag
     bool M_debug_team; //!< debug level flag
@@ -580,6 +584,10 @@ public:
      */
     bool debugPositioning() const { return M_debug_positioning; }
 
+    bool debugThPass() const { return M_debug_th_pass; }
+    bool debugLPass() const { return M_debug_l_pass; }
+    bool debugDPass() const { return M_debug_d_pass; }
+    bool debugCPass() const { return M_debug_c_pass; }
     /*!
       \brief get the debug flag
       \return debug flag

@@ -760,6 +760,37 @@ public:
      */
     std::ostream & print( std::ostream & os ) const;
 
+
+    // cyrus
+    std::vector<double> M_real_speed_max_on_dash_dir;
+    std::vector<double> M_real_speed_max2_on_dash_dir;
+    std::vector< std::vector<double> > M_dash_distance_table_on_dash_dir;
+
+    void initAdditionalParamsCyrus();
+    double realSpeedMaxOnDashDir(double dash_dir=-360.0) const
+    {
+        AngleDeg dash_angle = (dash_dir == -360.0 ? AngleDeg(0) : AngleDeg(dash_dir));
+        double dash_dir_deg = dash_angle.abs();
+        dash_dir_deg /= 10.0;
+        int dash_dir_step = static_cast<int>(std::round(dash_dir_deg));
+        return M_real_speed_max_on_dash_dir.at(dash_dir_step);
+    }
+    double realSpeedMax2OnDashDir(double dash_dir=-360.0) const
+    {
+        AngleDeg dash_angle = (dash_dir == -360.0 ? AngleDeg(0) : AngleDeg(dash_dir));
+        double dash_dir_deg = dash_angle.abs();
+        dash_dir_deg /= 10.0;
+        int dash_dir_step = static_cast<int>(std::round(dash_dir_deg));
+        return M_real_speed_max2_on_dash_dir.at(dash_dir_step);
+    }
+    const
+        std::vector< std::vector<double> > & dashDistanceTableOnDashDir() const
+    {
+        return M_dash_distance_table_on_dash_dir;
+    }
+    int cyclesToReachDistanceOnDashDir( const double & dash_dist, double dash_dir ) const;
+    double reachDistanceOnDashDir( const int & cycle, double dash_dir ) const;
+
     static
     PlayerType create( const int seed );
 };

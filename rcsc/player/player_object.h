@@ -58,7 +58,7 @@ public:
     typedef std::list< PlayerObject > List;
 
     //! type of the player object pointer container
-    typedef std::vector< const PlayerObject * > Cont;
+    typedef std::vector< PlayerObject * > Cont;
 
 
 private:
@@ -76,6 +76,9 @@ private:
     int M_tackle_count; //!< time count since the last tackle observation
 
     std::list< Vector2D > M_pos_history;
+
+    double M_seen_dist;
+    double M_seen_angle;
 
 public:
 
@@ -275,6 +278,17 @@ public:
                        const Vector2D & heard_pos,
                        const double & heard_body );
 
+    void updateByHearCyrus( const SideID heard_side,
+                            const int heard_unum,
+                            const bool is_goalie,
+                            const Vector2D & heard_pos,
+                            const double & heard_body,
+                            const double & heard_stamina,
+                            const bool is_our_side,
+                            const int pos_count,
+                            const int sender,
+                            const double dist_to_sender,
+                            const bool update_pos_if_pc_is_more);
     /*!
       \brief update status related to other objects
       \param self self position
@@ -295,6 +309,15 @@ public:
     */
     void forget();
 
+    double seen_dist() const
+    {
+          return M_seen_dist;
+    }
+
+    double seen_angle() const
+    {
+          return M_seen_angle;
+    }
 };
 
 }

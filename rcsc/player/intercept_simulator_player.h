@@ -47,7 +47,7 @@ class WorldModel;
   \brief intercept simulator for other players
 */
 class InterceptSimulatorPlayer {
-private:
+public:
 
     /*!
       \struct PlayerData
@@ -120,7 +120,7 @@ public:
                   const PlayerObject & player,
                   const bool goalie ) const;
 
-private:
+public:
 
     /*!
       \brief create predicted ball positions

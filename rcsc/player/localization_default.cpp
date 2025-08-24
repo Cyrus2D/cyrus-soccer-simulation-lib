@@ -1609,6 +1609,9 @@ LocalizationDefault::localizePlayer( const WorldModel & wm,
     to->rpos_.x = average_dist * AngleDeg::cos_deg( average_dir );
     to->rpos_.y = average_dist * AngleDeg::sin_deg( average_dir );
 
+    to->seen_dist = from.dist_;
+    to->seen_angle = self_face + from.dir_;
+
     // set distance error
     to->dist_error_ = dist_error;
 

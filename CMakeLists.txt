@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(librcsc VERSION 2023)
+project(libcyrus VERSION 2023)
 
 set(LIBRCSC_SOVERSION 18) # protocol version
 set(LIBRCSC_BUILDVERSION ${LIBRCSC_SOVERSION}.0.0)
@@ -19,8 +19,16 @@ endif()
 set(CMAKE_CXX_FLAGS "-W -Wall")
 
 # install destination
+if(NOT DEFINED TEAM_DIR)
+	set(TEAM_DIR "")
+endif()
+message("${TEAM_DIR}")
+set(LIB_PATH "${TEAM_DIR}")
+if(LIB_PATH STREQUAL "")
+  set(LIB_PATH "$ENV{HOME}/local/cyruslib")
+endif()
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(CMAKE_INSTALL_PREFIX "$ENV{HOME}/local" CACHE PATH "Install destination path" FORCE)
+  set(CMAKE_INSTALL_PREFIX "${LIB_PATH}" CACHE PATH "Install destination path" FORCE)
 endif()
 
 include(GNUInstallDirs)

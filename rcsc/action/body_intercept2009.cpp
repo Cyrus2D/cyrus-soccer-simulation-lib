@@ -91,9 +91,11 @@ Body_Intercept2009::execute( PlayerAgent * agent )
     }
 
     /////////////////////////////////////////////
-    InterceptInfo best_intercept = getBestIntercept( wm, table );
+    unsigned int ignore_intercept = 0;
+    InterceptInfo best_intercept = getBestIntercept( wm, table, ignore_intercept );
     //InterceptInfo best_intercept_test = getBestIntercept( wm, table );
-
+    if(ignore_intercept == table->selfCache().size())
+        return false;
     dlog.addText( Logger::INTERCEPT,
                   __FILE__": solution size= %d. selected best cycle is %d"
                   " (turn:%d + dash:%d) power=%.1f dir=%.1f",
@@ -110,12 +112,21 @@ Body_Intercept2009::execute( PlayerAgent * agent )
         dlog.addText( Logger::INTERCEPT,
                       __FILE__": can get the ball only by inertia move. Turn!" );
 
+        const bool goalie_mode
+                = ( wm.self().goalie()
+                    && wm.lastKickerSide() != wm.ourSide()
+                    && best_intercept.selfPos().x < ServerParam::i().ourPenaltyAreaLineX()
+                    && best_intercept.selfPos().absY() < ServerParam::i().penaltyAreaHalfWidth()
+                    && ((wm.ball().inertiaPoint(1) - wm.self().inertiaPoint(best_intercept.turnCycle())).th() - wm.self().body()).abs() < 90.0 + wm.self().playerType().effectiveTurn( ServerParam::i().maxMoment(), wm.self().vel().r() )
+                );
         Vector2D face_point = M_face_point;
         if ( ! face_point.isValid() )
         {
             face_point.assign( 50.5, wm.self().pos().y * 0.75 );
         }
-
+        if (goalie_mode){
+            face_point = wm.ball().inertiaPoint(1);
+        }
         agent->debugClient().addMessage( "InterceptTurnOnly" );
         Body_TurnToPoint( face_point,
                           best_intercept.reachCycle() ).execute( agent );
@@ -223,7 +234,8 @@ Body_Intercept2009::doKickableOpponentCheck( PlayerAgent * agent )
 */
 InterceptInfo
 Body_Intercept2009::getBestIntercept( const WorldModel & wm,
-                                      const InterceptTable * table ) const
+                                      const InterceptTable * table,
+                                      unsigned int &ignore_intercept) const
 {
     const ServerParam & SP = ServerParam::i();
     const std::vector< InterceptInfo > & cache = table->selfCache();
@@ -260,7 +272,7 @@ Body_Intercept2009::getBestIntercept( const WorldModel & wm,
     double forward_score = 0.0;
 
     const InterceptInfo * noturn_best = nullptr;
-    double noturn_score = 10000.0;
+    double noturn_score = -10000.0;
 
     const InterceptInfo * nearest_best = nullptr;
     double nearest_score = 10000.0;
@@ -276,6 +288,10 @@ Body_Intercept2009::getBestIntercept( const WorldModel & wm,
     const std::size_t MAX = cache.size();
     for ( std::size_t i = 0; i < MAX; ++i )
     {
+        if ( M_origin_target.isValid() && wm.ball().inertiaPoint(cache[i].reachCycle()).dist(M_origin_target) > M_origin_dist){
+            ignore_intercept += 1;
+            continue;
+        }
         if ( M_save_recovery
              && cache[i].staminaType() != InterceptInfo::NORMAL )
         {
@@ -309,11 +325,27 @@ Body_Intercept2009::getBestIntercept( const WorldModel & wm,
              && ball_pos.absY() < penalty_y - 1.0
              && cycle < opp_min - 1 )
         {
-            if ( ( cache[i].turnCycle() == 0
-                   && cache[i].ballDist() < SP.catchableArea() * 0.5 )
+            bool can_catch = false;
+            if (std::abs(cache[i].dashDir()) < 1.0)
+                can_catch = true;
+            else if (std::abs(cache[i].dashDir()) < 179.0)
+                if (((ball_pos - cache[i].selfPos()).th() - wm.self().body()).abs() < 90.0)
+                    can_catch = true;
+            if ( can_catch
                  || cache[i].ballDist() < 0.01 )
             {
                 double d = ball_pos.dist2( our_goal_pos );
+                if (cache[i].turnCycle() == 0)
+                    d = d * 2.0 + 5.0;
+//                AngleDeg target_angle = ( ball_pos - self_pos ).th();
+//                if ( cache[i].dashPower() < 0.0 )
+//                {
+//                    // back dash
+//                    target_angle -= 180.0;
+//                }
+//                if((target_angle - (wm.ball().pos() - wm.self().pos()).th()).abs() > 120)
+//                    d /= 2;
+
                 if ( d> goalie_score )
                 {
                     goalie_score = d;
@@ -434,14 +466,13 @@ Body_Intercept2009::getBestIntercept( const WorldModel & wm,
 
         if ( cache[i].turnCycle() == 0 )
         {
-            //double score = ball_pos.x;
-            //double score = wm.self().pos().dist2( ball_pos );
+            int diff = std::min(0, 4 - (opp_min - cache[i].dashCycle()));
+            auto opp = table->fastestOpponent();
+            if (opp){
+                diff += opp->posCount();
+            }
             double score = cycle;
-            //if ( ball_vel.x > 0.0 )
-            //{
-            //    score *= std::exp( - std::pow( ball_vel.r() - 1.0, 2.0 )
-            //                       / ( 2.0 * 1.0 ) );
-            //}
+            score -= diff;
 #ifdef DEBUG_PRINT
             dlog.addText( Logger::INTERCEPT,
                           "___ %d noturn cycle=%d pos=(%.1f %.1f) turn=%d dash=%d score=%f",
@@ -450,7 +481,7 @@ Body_Intercept2009::getBestIntercept( const WorldModel & wm,
                           cache[i].turnCycle(), cache[i].dashCycle(),
                           score );
 #endif
-            if ( score < noturn_score )
+            if ( score > noturn_score )
             {
                 noturn_best = &cache[i];
                 noturn_score = score;
@@ -550,6 +581,24 @@ Body_Intercept2009::getBestIntercept( const WorldModel & wm,
     }
 #endif
 
+    if ( attacker_best && noturn_best)
+    {
+        if(wm.ball().inertiaPoint((*attacker_best).reachCycle()).dist(wm.ball().inertiaPoint((*noturn_best).reachCycle())) < 4){
+            dlog.addText( Logger::INTERCEPT,
+                              "<--- noturn best(0): cycle=%d(t=%d,d=%d) score=%f",
+                          noturn_best->reachCycle(),
+                          noturn_best->turnCycle(), noturn_best->dashCycle(),
+                          noturn_score );
+            return *noturn_best;
+        }
+        dlog.addText( Logger::INTERCEPT,
+                      "<--- attacker best: cycle=%d(t=%d,d=%d) score=%f",
+                      attacker_best->reachCycle(),
+                      attacker_best->turnCycle(), attacker_best->dashCycle(),
+                      attacker_score );
+
+        return *attacker_best;
+    }
     if ( attacker_best )
     {
         dlog.addText( Logger::INTERCEPT,
@@ -1115,4 +1164,425 @@ Body_Intercept2009::doInertiaDash( PlayerAgent * agent,
     return true;
 }
 
+bool
+Body_Intercept2009::executeTackle( PlayerAgent * agent )
+{
+    dlog.addText( Logger::TEAM,
+                  __FILE__": Body_Intercept2009 tackle" );
+
+    const WorldModel & wm = agent->world();
+
+    /////////////////////////////////////////////
+    if ( doKickableOpponentCheck( agent ) )
+    {
+        return true;;
+    }
+
+    const InterceptTable * table = wm.interceptTable();
+
+    /////////////////////////////////////////////
+    if ( table->selfReachCycleTackle() > 100 )
+    {
+        Vector2D final_point = wm.ball().inertiaFinalPoint();
+        agent->debugClient().setTarget( final_point );
+
+        dlog.addText( Logger::INTERCEPT,
+                      __FILE__": no solution... Just go to ball end point (%.2f %.2f)",
+                      final_point.x, final_point.y );
+        agent->debugClient().addMessage( "InterceptNoSolution" );
+        Body_GoToPoint( final_point,
+                        2.0,
+                        ServerParam::i().maxDashPower()
+                        ).execute( agent );
+        return true;
+    }
+
+    /////////////////////////////////////////////
+    unsigned int ignore_intercept = 0;
+    InterceptInfo best_intercept = getBestInterceptTackle( wm, table,ignore_intercept );
+    if(ignore_intercept == table->selfCache().size())
+        return false;
+    //InterceptInfo best_intercept_test = getBestIntercept( wm, table );
+
+    dlog.addText( Logger::INTERCEPT,
+                  __FILE__": solution size= %d. selected best cycle is %d"
+                  " (turn:%d + dash:%d) power=%.1f dir=%.1f",
+                  table->selfCacheTackle().size(),
+                  best_intercept.reachCycle(),
+                  best_intercept.turnCycle(), best_intercept.dashCycle(),
+                  best_intercept.dashPower(), best_intercept.dashDir() );
+
+    Vector2D target_point = wm.ball().inertiaPoint( best_intercept.reachCycle() );
+    agent->debugClient().setTarget( target_point );
+
+    if ( best_intercept.dashCycle() == 0 )
+    {
+        dlog.addText( Logger::INTERCEPT,
+                      __FILE__": can get the ball only by inertia move. Turn!" );
+
+        Vector2D face_point = M_face_point;
+        if ( ! face_point.isValid() )
+        {
+            face_point.assign( 50.5, wm.self().pos().y * 0.75 );
+        }
+
+        agent->debugClient().addMessage( "InterceptTurnOnly" );
+        Body_TurnToPoint( wm.ball().inertiaPoint(best_intercept.reachCycle()),
+                          best_intercept.reachCycle() ).execute( agent );
+        return true;
+    }
+
+    /////////////////////////////////////////////
+    if ( best_intercept.turnCycle() > 0 )
+    {
+        Vector2D my_inertia = wm.self().inertiaPoint( best_intercept.reachCycle() );
+        AngleDeg target_angle = ( target_point - my_inertia ).th();
+        if ( best_intercept.dashPower() < 0.0 )
+        {
+            // back dash
+            target_angle -= 180.0;
+        }
+
+        dlog.addText( Logger::INTERCEPT,
+                      __FILE__": turn.first.%s target_body_angle = %.1f",
+                      ( best_intercept.dashPower() < 0.0 ? "BackMode" : "" ),
+                      target_angle.degree() );
+        agent->debugClient().addMessage( "InterceptTurn%d(%d/%d)",
+                                         best_intercept.reachCycle(),
+                                         best_intercept.turnCycle(),
+                                         best_intercept.dashCycle() );
+
+        return agent->doTurn( target_angle - wm.self().body() );
+    }
+
+    /////////////////////////////////////////////
+    dlog.addText( Logger::INTERCEPT,
+                  __FILE__": try dash. power=%.1f  target_point=(%.2f, %.2f)",
+                  best_intercept.dashPower(),
+                  target_point.x, target_point.y );
+
+    if ( doWaitTurn( agent, target_point, best_intercept ) )
+    {
+        return true;
+    }
+
+    if ( M_save_recovery
+         && ! wm.self().staminaModel().capacityIsEmpty() )
+    {
+        double consumed_stamina = best_intercept.dashPower();
+        if ( best_intercept.dashPower() < 0.0 ) consumed_stamina *= -2.0;
+
+        if ( wm.self().stamina() - consumed_stamina
+             < ServerParam::i().recoverDecThrValue() + 1.0 )
+        {
+            dlog.addText( Logger::INTERCEPT,
+                          __FILE__": insufficient stamina" );
+            agent->debugClient().addMessage( "InterceptRecover" );
+            agent->doTurn( 0.0 );
+            return false;
+        }
+
+    }
+
+    return doInertiaDash( agent,
+                          target_point,
+                          best_intercept );
+}
+
+InterceptInfo
+Body_Intercept2009::getBestInterceptTackle( const WorldModel & wm,
+                                      const InterceptTable * table,
+                                      unsigned int &/*ignore_intercept*/) const
+{
+    const ServerParam & SP = ServerParam::i();
+    const std::vector< InterceptInfo > & cache = table->selfCacheTackle();
+
+    if ( cache.empty() )
+    {
+        return InterceptInfo();
+    }
+
+#ifdef DEBUG_PRINT
+    dlog.addText( Logger::INTERCEPT,
+                  "===== getBestIntercept =====");
+#endif
+
+    const Vector2D goal_pos( 65.0, 0.0 );
+    const Vector2D our_goal_pos( -SP.pitchHalfLength(), 0.0 );
+    const double max_pitch_x = ( SP.keepawayMode()
+                                 ? SP.keepawayLength() * 0.5 - 1.0
+                                 : SP.pitchHalfLength() );
+    const double max_pitch_y = ( SP.keepawayMode()
+                                 ? SP.keepawayWidth() * 0.5 - 1.0
+                                 : SP.pitchHalfWidth() );
+    const double speed_max = wm.self().playerType().realSpeedMax() * 0.9;
+    const int opp_min = table->opponentReachCycle();
+    //const PlayerObject * fastest_opponent = table->fastestOpponent();
+
+    const InterceptInfo * noturn_best = static_cast< InterceptInfo * >( 0 );
+    double noturn_score = 10000.0;
+
+    const InterceptInfo * nearest_best = static_cast< InterceptInfo * >( 0 );
+    double nearest_score = 10000.0;
+
+    const std::size_t MAX = cache.size();
+    for ( std::size_t i = 0; i < MAX; i++ )
+    {
+        const int cycle = cache[i].reachCycle();
+        const Vector2D self_pos = wm.self().inertiaPoint( cycle );
+        const Vector2D ball_pos = wm.ball().inertiaPoint( cycle );
+
+#ifdef DEBUG_PRINT
+        dlog.addText( Logger::INTERCEPT,
+                      "intercept %d: cycle=%d t=%d d=%d pos=(%.2f %.2f) trap_ball_dist=%f",
+                      i,  cycle, cache[i].turnCycle(), cache[i].dashCycle(),
+                      ball_pos.x, ball_pos.y,
+                      cache[i].ballDist() );
+#endif
+        if ( M_save_recovery
+             && cache[i].staminaType() != InterceptInfo::NORMAL )
+        {
+#ifdef DEBUG_PRINT
+        dlog.addText( Logger::INTERCEPT,
+                      "continue is not normal");
+#endif
+            continue;
+        }
+
+
+
+
+        if ( ball_pos.absX() > max_pitch_x
+             || ball_pos.absY() > max_pitch_y )
+        {
+#ifdef DEBUG_PRINT
+        dlog.addText( Logger::INTERCEPT,
+                      "continue is out");
+#endif
+            continue;
+        }
+
+        // no turn type
+
+        if ( cache[i].turnCycle() == 0 )
+        {
+            double score = Line2D(self_pos, wm.self().body()).dist(ball_pos);
+            score += (cache[i].dashCycle() + cache[i].turnCycle());
+            if ( ball_pos.absX() > max_pitch_x -1
+                 || ball_pos.absY() > max_pitch_y - 1 )
+            {
+                score += 5;
+            }
+#ifdef DEBUG_PRINT
+            dlog.addText( Logger::INTERCEPT,
+                          "___ %d noturn cycle=%d pos=(%.1f %.1f) turn=%d dash=%d score=%f",
+                          i, cycle,
+                          ball_pos.x, ball_pos.y,
+                          cache[i].turnCycle(), cache[i].dashCycle(),
+                          score );
+#endif
+            if ( score < noturn_score )
+            {
+                noturn_best = &cache[i];
+                noturn_score = score;
+#ifdef DEBUG_PRINT
+                dlog.addText( Logger::INTERCEPT,
+                              "___ %d updated noturn_best score=%f",
+                              i, score );
+#endif
+            }
+        }
+        else
+        {
+            double d = cache[i].selfPos().dist(ball_pos);
+            d += (cache[i].dashCycle() + cache[i].turnCycle());
+            if ( ball_pos.absX() > max_pitch_x -1
+                 || ball_pos.absY() > max_pitch_y - 1 )
+            {
+                d += 5;
+            }
+#ifdef DEBUG_PRINT
+            dlog.addText( Logger::INTERCEPT,
+                          "___ %d other cycle=%d pos=(%.1f %.1f) turn=%d dash=%d dist2=%.2f",
+                          i, cycle,
+                          ball_pos.x, ball_pos.y,
+                          cache[i].turnCycle(), cache[i].dashCycle(),
+                          d );
+#endif
+            if ( d < nearest_score )
+            {
+                nearest_best = &cache[i];
+                nearest_score = d;
+#ifdef DEBUG_PRINT
+                dlog.addText( Logger::INTERCEPT,
+                              "___ %d updated nearest_best score=%f",
+                              i, nearest_score );
+#endif
+            }
+        }
+    }
+
+    if ( noturn_best )
+    {
+        const Vector2D noturn_ball_vel
+            = wm.ball().vel()
+            * std::pow( SP.ballDecay(), noturn_best->reachCycle() );
+        const double noturn_ball_speed = noturn_ball_vel.r();
+        if ( noturn_ball_vel.x > 0.1
+             && ( noturn_ball_speed > speed_max )
+             )
+        {
+            dlog.addText( Logger::INTERCEPT,
+                              "<--- noturn best(1): cycle=%d(t=%d,d=%d) score=%f",
+                          noturn_best->reachCycle(),
+                          noturn_best->turnCycle(), noturn_best->dashCycle(),
+                          noturn_score );
+            return *noturn_best;
+        }
+    }
+
+    const Vector2D fastest_pos = wm.ball().inertiaPoint( cache[0].reachCycle() );
+    const Vector2D fastest_vel = wm.ball().vel() * std::pow( SP.ballDecay(),
+                                                             cache[0].reachCycle() );
+    if ( ( fastest_pos.x > -33.0
+           || fastest_pos.absY() > 20.0 )
+         && ( cache[0].reachCycle() >= 10
+             //|| wm.ball().vel().r() < 1.5 ) )
+             || fastest_vel.r() < 1.2 ) )
+    {
+        dlog.addText( Logger::INTERCEPT,
+                      "<--- fastest best: cycle=%d(t=%d,d=%d)",
+                      cache[0].reachCycle(),
+                      cache[0].turnCycle(), cache[0].dashCycle() );
+        return cache[0];
+    }
+
+    if ( noturn_best && nearest_best )
+    {
+        const Vector2D noturn_self_pos = wm.self().inertiaPoint( noturn_best->reachCycle() );
+        const Vector2D noturn_ball_pos = wm.ball().inertiaPoint( noturn_best->reachCycle() );
+        const Vector2D nearest_self_pos = wm.self().inertiaPoint( nearest_best->reachCycle() );
+        const Vector2D nearest_ball_pos = wm.ball().inertiaPoint( nearest_best->reachCycle() );
+
+        if ( noturn_self_pos.dist2( noturn_ball_pos )
+             < nearest_self_pos.dist2( nearest_ball_pos ) )
+        {
+            dlog.addText( Logger::INTERCEPT,
+                          "<--- noturn best(2): cycle=%d(t=%d,d=%d) score=%f",
+                          noturn_best->reachCycle(),
+                          noturn_best->turnCycle(), noturn_best->dashCycle(),
+                          noturn_score );
+
+            return *noturn_best;
+        }
+
+        if ( nearest_best->reachCycle() <= noturn_best->reachCycle() + 2 )
+        {
+            const Vector2D nearest_ball_vel
+                = wm.ball().vel()
+                * std::pow( SP.ballDecay(), nearest_best->reachCycle() );
+            const double nearest_ball_speed = nearest_ball_vel.r();
+            if ( nearest_ball_speed < 0.7 )
+            {
+                dlog.addText( Logger::INTERCEPT,
+                              "<--- nearest best(2): cycle=%d(t=%d,d=%d) score=%f",
+                              nearest_best->reachCycle(),
+                              nearest_best->turnCycle(), nearest_best->dashCycle(),
+                              nearest_score );
+                return *nearest_best;
+            }
+
+            const Vector2D noturn_ball_vel
+                = wm.ball().vel()
+                * std::pow( SP.ballDecay(), noturn_best->reachCycle() );
+
+            if ( nearest_best->ballDist() < wm.self().playerType().kickableArea() - 0.4
+                 && nearest_best->ballDist() < noturn_best->ballDist()
+                 && noturn_ball_vel.x < 0.5
+                 && noturn_ball_vel.r2() > std::pow( 1.0, 2 )
+                 && noturn_ball_pos.x > nearest_ball_pos.x )
+            {
+                dlog.addText( Logger::INTERCEPT,
+                              "<--- nearest best(3): cycle=%d(t=%d,d=%d) score=%f",
+                              nearest_best->reachCycle(),
+                              nearest_best->turnCycle(), nearest_best->dashCycle(),
+                              nearest_score );
+                return *nearest_best;
+            }
+
+            Vector2D nearest_self_pos = wm.self().inertiaPoint( nearest_best->reachCycle() );
+            if ( nearest_ball_speed > 0.7
+                //&& wm.self().pos().dist( nearest_ball_pos ) < wm.self().playerType().kickableArea() )
+                 && nearest_self_pos.dist( nearest_ball_pos ) < wm.self().playerType().kickableArea() )
+            {
+                dlog.addText( Logger::INTERCEPT,
+                              "<--- nearest best(4): cycle=%d(t=%d,d=%d) score=%f",
+                              nearest_best->reachCycle(),
+                              nearest_best->turnCycle(), nearest_best->dashCycle(),
+                              nearest_score );
+                return *nearest_best;
+            }
+        }
+
+        dlog.addText( Logger::INTERCEPT,
+                          "<--- noturn best(3): cycle=%d(t=%d,d=%d) score=%f",
+                      noturn_best->reachCycle(),
+                      noturn_best->turnCycle(), noturn_best->dashCycle(),
+                      noturn_score );
+
+        return *noturn_best;
+    }
+
+    if ( noturn_best )
+    {
+        dlog.addText( Logger::INTERCEPT,
+                      "<--- noturn best only: cycle=%d(t=%d,d=%d) score=%f",
+                      noturn_best->reachCycle(),
+                      noturn_best->turnCycle(), noturn_best->dashCycle(),
+                      noturn_score );
+
+        return *noturn_best;
+    }
+
+    if ( nearest_best )
+    {
+        dlog.addText( Logger::INTERCEPT,
+                      "<--- nearest best only: cycle=%d(t=%d,d=%d) score=%f",
+                      nearest_best->reachCycle(),
+                      nearest_best->turnCycle(), nearest_best->dashCycle(),
+                      nearest_score );
+
+        return *nearest_best;
+    }
+
+
+
+    if ( wm.self().pos().x > 40.0
+         && wm.ball().vel().r() > 1.8
+         && wm.ball().vel().th().abs() < 100.0
+         && cache[0].reachCycle() > 1 )
+    {
+        const InterceptInfo * chance_best = static_cast< InterceptInfo * >( 0 );
+        for ( std::size_t i = 0; i < MAX; ++i )
+        {
+            if ( cache[i].reachCycle() <= cache[0].reachCycle() + 3
+                 && cache[i].reachCycle() <= opp_min - 2 )
+            {
+                chance_best = &cache[i];
+            }
+        }
+
+        if ( chance_best )
+        {
+            dlog.addText( Logger::INTERCEPT,
+                          "<--- chance best only: cycle=%d(t=%d,d=%d)",
+                          chance_best->reachCycle(),
+                          chance_best->turnCycle(), chance_best->dashCycle() );
+            return *chance_best;
+        }
+    }
+
+    return cache[0];
+
+}
 }

@@ -168,6 +168,10 @@ PlayerConfig::setDefaultParam()
     M_debug_block = false;
     M_debug_mark = false;
     M_debug_positioning = false;
+    M_debug_th_pass = false;
+    M_debug_l_pass = false;
+    M_debug_d_pass = false;
+    M_debug_c_pass = false;
     M_debug_role = false;
     M_debug_plan = false;
     M_debug_team = false;
@@ -268,6 +272,10 @@ PlayerConfig::createParamMap()
         ( "debug_communication", "", BoolSwitch( &M_debug_communication ) )
         ( "debug_analyzer", "", BoolSwitch( &M_debug_analyzer ) )
         ( "debug_action_chain", "", BoolSwitch( &M_debug_action_chain ) )
+        ( "debug_th_pass", "", BoolSwitch( &M_debug_th_pass ) )
+        ( "debug_c_pass", "", BoolSwitch( &M_debug_c_pass ) )
+        ( "debug_l_pass", "", BoolSwitch( &M_debug_l_pass ) )
+        ( "debug_d_pass", "", BoolSwitch( &M_debug_d_pass ) )
         ( "debug_training", "", BoolSwitch( &M_debug_training ) )
         ;
 }

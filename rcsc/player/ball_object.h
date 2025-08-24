@@ -59,6 +59,10 @@ class SelfObject;
   -> updateSelfRelated()
 */
 class BallObject {
+public:
+    Vector2D M_pos; //!< estimated global position
+    Vector2D M_base_pos;
+    
 private:
     //! validation count threshold value for M_pos
     static int S_pos_count_thr;
@@ -67,7 +71,6 @@ private:
     //! validation count threshold value for M_vel
     static int S_vel_count_thr;
 
-    Vector2D M_pos; //!< estimated global position
     Vector2D M_pos_error; //!< estimated error of global position
     int M_pos_count; //!< cycle count since the last observation
 
@@ -98,6 +101,9 @@ private:
 
     double M_dist_from_self; //!< estimated distance from self
     AngleDeg M_angle_from_self; //!< estimated global angle from self
+
+    double M_seen_dist;
+    double M_seen_angle;
 
 
     std::list< Vector2D > M_pos_history;
@@ -474,6 +480,21 @@ public:
                                       vel(),
                                       ServerParam::i().ballDecay() );
       }
+    
+    double seen_dist() const
+    {
+          return M_seen_dist;
+    }
+
+    double seen_angle() const
+    {
+          return M_seen_angle;
+    }
+
+    void set_seen_info(const double& seen_dist, const double& seen_angle){
+          M_seen_dist = seen_dist;
+          M_seen_angle = seen_angle;
+    }
 
 };
 

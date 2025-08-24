@@ -70,6 +70,9 @@ public:
 
         double dist_error_; //!< seen distance error
 
+        double seen_dist;
+        double seen_angle;
+
         /*!
           \brief init member variables by error value
         */
@@ -87,7 +90,9 @@ public:
               pointto_( false ),
               kicking_( false ),
               tackle_( false ),
-              dist_error_( 0.0 )
+              dist_error_( 0.0 ),
+              seen_dist(1000),
+              seen_angle(-360)
           { }
 
         /*!

@@ -78,16 +78,21 @@ public:
         int sender_; //!< message sender number
         int receiver_; //!< heard pass receiver number
         Vector2D receive_pos_; //!< heard pass receive pos
-
+        bool is_pre_pass_;
+        bool is_cross_;
         /*!
           \brief initialize all member
          */
         Pass( const int sender,
               const int receiver,
-              const Vector2D & pos )
+              const Vector2D & pos,
+              const bool & is_pre_pass = false,
+              const bool & is_cross = false)
             : sender_( sender ),
               receiver_( receiver ),
-              receive_pos_( pos )
+              receive_pos_( pos ),
+              is_pre_pass_( is_pre_pass ),
+              is_cross_( is_cross )
           { }
     };
 
@@ -164,7 +169,7 @@ public:
         Vector2D pos_; //!< heard player position
         double body_; //!< heard player's body angle
         double stamina_; //!< heard player's stamina info. negative value means stamina is unknown
-
+        int pos_count_;
         /*!
           \brief initialize all member
         */
@@ -172,12 +177,14 @@ public:
                 const int unum,
                 const Vector2D & pos,
                 const double & body = -360.0,
-                const double & stamina = -1.0 )
+                const double & stamina = -1.0,
+                const int & pos_count = 0)
             : sender_( sender ),
               unum_( unum ),
               pos_( pos ),
               body_( body ),
-              stamina_( stamina )
+              stamina_( stamina ),
+              pos_count_(pos_count)
           { }
     };
 
@@ -811,7 +818,9 @@ public:
     void setPass( const int sender,
                   const int receiver,
                   const Vector2D & pos,
-                  const GameTime & current );
+                  const GameTime & current,
+                  const bool & is_pre_pass = false,
+                  const bool & is_cross = false);
 
     /*!
       \brief set heard pass request info
@@ -850,7 +859,8 @@ public:
     void setPlayer( const int sender,
                     const int unum,
                     const Vector2D & pos,
-                    const GameTime & current );
+                    const GameTime & current,
+                    const int & pos_count = 0);
 
     /*!
       \brief set heard player info
@@ -867,7 +877,8 @@ public:
                     const Vector2D & pos,
                     const double & body,
                     const double & stamina,
-                    const GameTime & current );
+                    const GameTime & current,
+                    const int & pos_count = 0);
 
     /*!
       \brief set heard offside line info

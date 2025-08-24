@@ -46,6 +46,7 @@
 #include "say_message_builder.h"
 #include "soccer_action.h"
 #include "soccer_intention.h"
+#include "see_logger.h"
 
 #include <rcsc/common/audio_codec.h>
 #include <rcsc/common/audio_memory.h>
@@ -70,7 +71,7 @@
 #include <cstring>
 
 //#define PROFILE_SEE
-
+//#define LOG_SEE
 namespace rcsc {
 
 ///////////////////////////////////////////////////////////////////////
@@ -221,7 +222,6 @@ struct PlayerAgent::Impl {
       \param msg raw server message
     */
     void analyzeSee( const char * msg );
-
 
     /*!
       \brief analyze sense_body info
@@ -1431,6 +1431,10 @@ PlayerAgent::Impl::setDebugFlags()
     dlog.setLogFlag( &current_time_, Logger::COMMUNICATION, c.debugCommunication() );
     dlog.setLogFlag( &current_time_, Logger::ANALYZER, c.debugAnalyzer() );
     dlog.setLogFlag( &current_time_, Logger::ACTION_CHAIN, c.debugActionChain() );
+    dlog.setLogFlag( &current_time_, Logger::TH_PASS, c.debugThPass() );
+    dlog.setLogFlag( &current_time_, Logger::L_PASS, c.debugLPass() );
+    dlog.setLogFlag( &current_time_, Logger::D_PASS, c.debugDPass() );
+    dlog.setLogFlag( &current_time_, Logger::C_PASS, c.debugCPass() );
 
     dlog.setLogFlag( &current_time_, Logger::TRAINING, c.debugTraining() );
 }
@@ -1446,6 +1450,9 @@ PlayerAgent::parse( const char * msg )
     if ( ! std::strncmp( msg, "(see ", 5 ) )
     {
         M_impl->analyzeSee( msg );
+        #ifdef LOG_SEE
+        SeeLogger().logSee(M_impl->agent_, M_impl->visual_);
+        #endif
     }
     else if ( ! std::strncmp( msg, "(sense_body ", 12 ) )
     {
@@ -2339,6 +2346,9 @@ PlayerAgent::Impl::analyzeWarning( const char * msg )
 /*!
 
  */
+
+void PlayerAgent::update_player_by_denoiser(){}
+
 void
 PlayerAgent::action()
 {
@@ -2379,14 +2389,20 @@ PlayerAgent::action()
     // ------------------------------------------------------------------------
     // last update
     // update positining matrix, offside line, defense line, etc.
-    M_worldmodel.updateJustBeforeDecision( effector(),
-                                           M_impl->current_time_ );
     if ( config().debugFullstate()
          && M_fullstate_worldmodel.isValid() )
     {
-        M_fullstate_worldmodel.updateJustBeforeDecision( effector(),
-                                                         M_impl->current_time_ );
+        M_fullstate_worldmodel.updateJustBeforeDecision1( effector(),
+                                                          M_impl->current_time_ );
+        M_fullstate_worldmodel.updateJustBeforeDecision2( effector(),
+                                                          M_impl->current_time_ );
     }
+    M_worldmodel.updateJustBeforeDecision1( effector(),
+                                            M_impl->current_time_ );
+    update_player_by_denoiser();
+    M_worldmodel.updateJustBeforeDecision2( effector(),
+                                            M_impl->current_time_ );
+
 
     // reset last action effect
     M_effector.reset();
@@ -2820,6 +2836,30 @@ PlayerAgent::doDash( const double & power,
     return true;
 }
 
+/*-------------------------------------------------------------------*/
+/*!
+ */
+    bool
+    PlayerAgent::doDash( const double left_power,
+                         const AngleDeg & left_dir,
+                         const double right_power,
+                         const AngleDeg & right_dir )
+    {
+        if ( world().self().isFrozen() )
+        {
+            dlog.addText( Logger::ACTION,
+                          __FILE__": (PlayerAgent::doDash) [false ]tackle expire period  %d",
+                          world().self().tackleExpires() );
+            std::cerr << world().teamName() << ' '
+                      << world().self().unum() << ": "
+                      << world().time()
+                      << " (PlayerAgent::doDash) [false] Tackle expire period" << std::endl;
+            return false;
+        }
+
+        M_effector.setDash( left_power, left_dir, right_power, right_dir );
+        return true;
+    }
 /*-------------------------------------------------------------------*/
 /*!
 

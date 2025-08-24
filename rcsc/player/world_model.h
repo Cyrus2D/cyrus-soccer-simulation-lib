@@ -37,7 +37,8 @@
 #include <rcsc/player/player_object.h>
 #include <rcsc/player/view_area.h>
 #include <rcsc/player/view_grid_map.h>
-#include <rcsc/player/intercept_table.h>
+//#include <rcsc/player/intercept_table.h>
+#include <rcsc/player/intercept_table_cyrus.h>
 
 #include <rcsc/time/timer.h>
 #include <rcsc/geom/vector_2d.h>
@@ -75,13 +76,18 @@ public:
 
     static const std::size_t MAX_RECORD; //!< max record size
     static const double DIR_STEP; //!< the angle steps for dir confidence
+    PlayerObject::Cont M_teammates_from_self; //!< teammates sorted by distance from self
+    PlayerObject::Cont M_opponents_from_self; //!< opponents sorted by distance from ball, include unknown players
+    PlayerObject::Cont M_teammates_from_ball; //!< teammates sorted by distance from self
+    PlayerObject::Cont M_opponents_from_ball; //!< opponents sorted by distance from ball, include unknown players
+    BallObject M_ball; //!< current ball object
 
 private:
 
     double M_client_version;
 
     std::shared_ptr< Localization > M_localize; //!< localization module
-    InterceptTable M_intercept_table; //!< interception info table
+    InterceptTableCyrus M_intercept_table; //!< interception info table
     std::shared_ptr< AudioMemory > M_audio_memory; //!< heard deqinfo memory
     PenaltyKickState * M_penalty_kick_state; //!< penalty kick mode status
 
@@ -115,7 +121,6 @@ private:
     //////////////////////////////////////////////////
     // field object instance
     SelfObject M_self; //!< self object
-    BallObject M_ball; //!< current ball object
     BallObject M_prev_ball; //!< ball object in the previous cycle
     PlayerObject::List M_teammates; //!< teammmates instance. at least, the side information is observed
     PlayerObject::List M_opponents; //!< opponents instance. at least, the side information is observed
@@ -124,10 +129,6 @@ private:
     //////////////////////////////////////////////////
     // object reference (pointers to each object)
     // these containers are updated just before decision making
-    PlayerObject::Cont M_teammates_from_self; //!< teammates sorted by distance from self
-    PlayerObject::Cont M_opponents_from_self; //!< opponents sorted by distance from ball, include unknown players
-    PlayerObject::Cont M_teammates_from_ball; //!< teammates sorted by distance from self
-    PlayerObject::Cont M_opponents_from_ball; //!< opponents sorted by distance from ball, include unknown players
 
     int M_our_goalie_unum; //!< uniform number of teammate goalie
     int M_their_goalie_unum; //!< uniform number of opponent goalie
@@ -257,8 +258,9 @@ public:
       \brief get intercept table
       \return const pointer to the intercept table instance
     */
-    const InterceptTable & interceptTable() const
+    const InterceptTableCyrus & interceptTable() const
     {
+        // TODO Create Interface
         return M_intercept_table;
     }
 
@@ -275,6 +277,11 @@ public:
     const AudioMemory & audioMemory() const
       {
           return *M_audio_memory;
+      }
+
+      const std::shared_ptr< AudioMemory > audioMemoryPtr() const
+      {
+          return M_audio_memory;
       }
 
     /*!
@@ -428,9 +435,11 @@ public:
       This method is called just before action decision to update and
       adjust world model.
     */
-    void updateJustBeforeDecision( const ActionEffector & act,
-                                   const GameTime & current );
+    void updateJustBeforeDecision1( const ActionEffector & act,
+                                    const GameTime & current );
 
+    void updateJustBeforeDecision2( const ActionEffector & act,
+                                    const GameTime & current );
     /*!
       \brief update using internal by command effects. This method is called just before command sending.
       \param act ActionEffector object.
@@ -495,6 +504,7 @@ private:
       \param current current game time
     */
     void localizePlayers( const VisualSensor & see );
+    void localizePlayersCyrus( const VisualSensor & see );
 
     /*!
       \brief check player that has team info
@@ -528,6 +538,14 @@ private:
                              PlayerObject::List & new_opponents,
                              PlayerObject::List & new_unknown_players );
 
+    void checkUnknownPlayerCyrus( const Localization::PlayerT & player,
+                                  const double & seen_dist,
+                                  PlayerObject::List & old_teammates,
+                                  PlayerObject::List & old_opponent,
+                                  PlayerObject::List & old_unknown_players,
+                                  PlayerObject::List & new_teammates,
+                                  PlayerObject::List & new_opponents,
+                                  PlayerObject::List & new_unknown_players );
     /*!
       \brief set collision effect with ball
     */

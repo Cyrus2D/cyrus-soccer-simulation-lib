@@ -38,6 +38,7 @@
 #include "world_model.h"
 #include "ball_object.h"
 #include "player_object.h"
+#include "cut_ball_calculator.h"
 
 #include <rcsc/common/logger.h>
 #include <rcsc/common/server_param.h>
@@ -93,14 +94,15 @@ get_control_area( const PlayerObject & p,
 /*-------------------------------------------------------------------*/
 inline
 int
-get_bonus_step( const PlayerObject & p,
-                const SideID our_side )
+get_bonus_step( const PlayerObject & /*p*/,
+                const SideID /*our_side*/ )
 {
-    return p.side() == our_side
-        // ? std::min( 3, static_cast< int >( std::ceil( std::min( p.heardPosCount(), p.seenPosCount() ) * 0.75 ) ) )
-        // : std::min( 3, static_cast< int >( std::ceil( std::min( p.heardPosCount(), p.seenPosCount() ) * 0.75 ) ) );
-        ? std::min( 3, std::min( p.heardPosCount(), p.seenPosCount() ) )
-        : std::min( 3, std::min( p.heardPosCount(), p.seenPosCount() ) );
+    return 0;
+//    return p.side() == our_side
+//        // ? std::min( 3, static_cast< int >( std::ceil( std::min( p.heardPosCount(), p.seenPosCount() ) * 0.75 ) ) )
+//        // : std::min( 3, static_cast< int >( std::ceil( std::min( p.heardPosCount(), p.seenPosCount() ) * 0.75 ) ) );
+//        ? std::min( 3, std::min( p.heardPosCount(), p.seenPosCount() ) )
+//        : std::min( 3, std::min( p.heardPosCount(), p.seenPosCount() ) );
 }
 
 /*-------------------------------------------------------------------*/
@@ -282,8 +284,8 @@ InterceptSimulatorPlayer::simulate( const WorldModel & wm,
         }
 
         if ( canReachAfterTurnDash( data,
-                                    ball_pos,
-                                    total_step ) )
+                                         ball_pos,
+                                         total_step ) )
         {
 #ifdef DEBUG
             dlog.addText( Logger::INTERCEPT,
